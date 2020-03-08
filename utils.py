@@ -1,7 +1,9 @@
 
 import random
 import string
-import datetime
+
+from datetime import datetime
+from pytz import timezone
 
 def gtd(generator):
     list = []
@@ -14,6 +16,11 @@ def gtd(generator):
 def generate_user_id():
     return ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(8))
 
+
+fmt = "%Y-%m-%d %H:%M:%S"
+
+def time_now():
+    return datetime.now(timezone('US/Eastern')).strftime(fmt)
 
 class Pause():
     def __init__(self):

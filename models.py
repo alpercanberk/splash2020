@@ -4,19 +4,15 @@ from app import db
 import time
 from datetime import datetime
 from pytz import timezone
-from utils import generate_user_id
+from utils import generate_user_id, time_now
 
 
-fmt = "%Y-%m-%d %H:%M:%S %Z%z"
-
-def time_now():
-    return datetime.now(timezone('US/Eastern')).strftime(fmt)
 
 class User(db.Model):
     __tablename__ = 'users'
 
-    id = db.Column(db.Integer, primary_key=True)
-    
+    id = db.Column(db.String(), primary_key=True)
+
     user_id = db.Column(db.String())
     name = db.Column(db.String())
     email = db.Column(db.String())
@@ -29,20 +25,20 @@ class User(db.Model):
     time_immunity_activated = db.Column(db.String())
     immunity_duration = db.Column(db.Integer)
 
-    time_created = db.Column(db.String())
+    time_created = db.Column(db.String(), extend_existing=True)
 
     def __init__(self, name, email):
 
-        self.user_id = generate_user_id()
+        self.id = generate_user_id()
         self.name = name
         self.email = email
 
         self.number_of_elims = 0
-        self.time_of_last_elim = None
-        self.time_eliminated = None
+        self.time_of_last_elim = ""
+        self.time_eliminated = ""
 
         self.is_immune = 0
-        self.time_immunity_activated = None
+        self.time_immunity_activated = ""
         self.immunity_duration = 0
 
         self.time_created = time_now()
@@ -69,7 +65,7 @@ class User(db.Model):
 class Match(db.Model):
     __tablename__ = 'matches'
 
-    id = db.Column(db.String(), primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
     hunter_email = db.Column(db.String())
     target_email = db.Column(db.String())
 
@@ -83,11 +79,10 @@ class Match(db.Model):
         self.hunter_email = hunter_email
         self.target_email = target_email
         self.time_created = time_now()
+        self.time_ended = ""
+        self.reason = ""
 
-        self.time_ended = None
-        self.reason = None
-
-        print('Match created at time:', self.time_created.strftime(fmt))
+        print('Match created at time:', self.time_created)
 
     def __repr__(self):
         return '<match {}>'.format(self.id)
@@ -101,3 +96,18 @@ class Match(db.Model):
             'time_ended':self.time_ended,
             'reason':self.reason
         }
+
+class Pause(db.Model):
+    __tablename__ = 'pause'
+
+    id = db.Column(db.Integer, primary_key=True)
+    is_paused = db.Column(db.Boolean)
+
+    def __init__(self):
+        self.is_paused = False
+
+    def __repr__(self):
+        return '< pause in state ' + str(self.is_paused) + ' >'
+
+    def serialize(self):
+        return self.is_paused

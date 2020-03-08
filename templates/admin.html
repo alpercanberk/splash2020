@@ -1,17 +1,180 @@
 {% extends 'base.html' %}
 {% block content %}
 
-<p> {{user_info}} </p>
 <p> Admin page </p>
+
+<div>Num users: {{basic_stats[0]}}</div>
+<div>Num matches: {{basic_stats[1]}}</div>
+
+
+<table style="width:95%" class="table">
+  <tr>
+    <th>ID</th>
+    <th>Name</th>
+    <th>Email</th>
+    <th>Number of Elims</th>
+    <th>Time of Last Elim</th>
+    <th>Time Eliminated</th>
+  </tr>
+  {% for user in user_table %}
+    <tr>
+      <td>{{user["id"]}}</td>
+      <td>{{user["name"]}}</td>
+      <td>{{user["email"]}}</td>
+      <td>{{user["number_of_elims"]}}</td>
+      <td>{{user["time_of_last_elim"]}}</td>
+      <td>{{user["time_eliminated"]}}</td>
+    </tr>
+  {% endfor %}
+</table>
+
+<table style="width:95%" class="table">
+  <tr>
+    <th>Hunter</th>
+    <th>Target</th>
+    <th>Time Created</th>
+    <th>Time Ended</th>
+    <th>Reason Ended</th>
+  </tr>
+  {% for match in match_table %}
+    <tr>
+      <td>{{match["hunter_email"]}}</td>
+      <td>{{match["target_email"]}}</td>
+      <td>{{match["time_created"]}}</td>
+      <td>{{match["time_ended"]}}</td>
+      <td>{{match["reason"]}}</td>
+    </tr>
+  {% endfor %}
+</table>
+<!--
+<div>
+ <h2>Add a user</h2>
+ <form class="add-form" onsubmit="return submitEliminate();">
+ <label> email </label>
+ <input type=textarea name=email id="add-textarea-email">
+ <label> name </label>
+ <input type=textarea name=email id="add-textarea-name">
+ <input type=submit value=Add class="btn btn-primary">
+</form>
+</div> -->
+
+
+<div>
+ <h2>Eliminate a user</h2>
+ <form class="eliminate-form" onsubmit="return submitEliminate();">
+ <input type=textarea name=email id="eliminate-textarea">
+ <div>
+   <input type="checkbox" id="checkBox" onclick="switchCheckbox()">
+   <label>Increment hunter's elimination count</label>
+ </div>
+ <input type=submit value=Eliminate class="btn btn-danger">
+</form>
+</div>
+
+<div>
+ <h2>Edit a user</h2>
+ <form class="edit-form" onsubmit="return submitEdit();">
+   <div>previous:
+   <label> email </label>
+   <input type=textarea name=previous_email>
+   <label> name </label>
+   <input type=textarea name=previous_name>
+   </div>
+   <div>new:
+   <label> email </label>
+   <input type=textarea name=new_email>
+   <label> name </label>
+   <input type=textarea name=new_name>
+   </div>
+   <input type=submit value=Edit class="btn btn-primary">
+ </form>
+</div>
+
 <div>
  <h2>Upload a new game</h2>
- <form action="/upload" method=post enctype=multipart/form-data><p>
+ <form action="/upload" onsubmit="return confirm('Do you really want to submit the form?');" method=post enctype=multipart/form-data><p>
  <div class="form-group">
  <input type=file name=file>
  <input type=submit value=Upload class="btn btn-primary">
  </div>
  </form>
 </div>
+{% if not is_paused %}
+<button class='btn btn-primary' onclick="pauseGame();"> Pause Game </div>
+{% else %}
+<button class='btn btn-primary' onclick="pauseGame();"> Continue Game </div>
+{% endif %}
 
+<button class='btn btn-primary'> Shuffle Game </div>
+
+<script>
+
+  var incrementCheckbox = false;
+  function switchCheckbox(){
+    incrementCheckbox = !incrementCheckbox;
+    console.log(incrementCheckbox);
+  }
+
+
+  function submitEdit(){
+    form = document.getElementById("edit-form");
+    if(confirm('Do you really want to edit this user?')){
+      axios({
+        method:'post',
+        url:'/edit_user',
+        data:{
+          previous_name:form.elements["previous_name"].value,
+          previous_email:form.elements["previous_email"].value,
+          new_name:form.elements["news_name"].value,
+          new_email:form.elements["new_email"].value,
+        }
+      }).then(data => {alert(data["data"]); window.location.reload();})
+    }
+    return false;
+  }
+
+  function submitEliminate(){
+    eliminating_email = document.getElementById("eliminate-textarea").value
+    if(confirm('Do you really want to eliminate this user?')){
+      axios({
+        method:'post',
+        url:'/eliminate_user_admin',
+        data:{
+          email:eliminating_email,
+          increment_elimination_count:incrementCheckbox
+        }
+      }).then(data => {alert(data["data"]); window.location.reload();})
+    }
+
+    return false;
+  }
+
+  function pauseGame(){
+    axios({
+      method:'post',
+      url:'/pause_game',
+    }).then(data => {alert(data["data"]); window.location.reload();})
+  }
+
+
+  // function submitAdd(e){
+  //   e.preventDefault();
+  //   adding_email = document.getElementById("eliminate-textarea").value
+  //   if(confirm('Do you really want to add this user?')){
+  //     axios({
+  //       method:'post',
+  //       url:'/eliminate_user_admin',
+  //       data:{
+  //         email:eliminating_email,
+  //         increment_elimination_count:incrementCheckbox
+  //       }
+  //     }).then(data => {alert(data["data"]);})
+  //   }
+  //   return false;
+  // }
+
+
+
+</script>
 
 {% endblock %}
