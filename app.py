@@ -155,7 +155,7 @@ def eliminate_user_admin_route():
         data = request.json
         return eliminate_user(data["email"], data["increment_elimination_count"])
     else:
-        return "Damn you're smart, come to programming club..."
+        return "Damn you're smart, come to programming club."
 
 @app.route('/eliminate_user', methods=["POST"])
 def eliminate_user_route():
