@@ -103,8 +103,7 @@ def eliminate_user(email, increment_elimination_count=False):
             user_active_match_target.reason = "DQ"
 
         #pair up hunter and the target and create a new elim
-        new_match = Match(hunter_of_user_email, target_of_user_email)
-        db.session.add(new_match)
+        create_new_match(hunter_of_user_email, target_of_user_email)
         print("New match created!")
 
         #kill the user
@@ -119,40 +118,26 @@ def eliminate_user(email, increment_elimination_count=False):
 def add_user(name, email):
 
     #create a new user
-    new_user = User(name, email)
-    db.session.add(new_user)
+    create_new_user(name, email)
     print("New user created!")
 
-    all_elims = get_table(Match)
-    elim_picked_id = all_elims[random.randint(0, len(all_elims))]["id"]
-    elim_picked = Match.query.filter_by(id=elim_picked_id).first()
+    all_matches = get_table(Match)
+    match_picked_id = all_matches[random.randint(0, len(all_matches))]["id"]
+    match_picked = Match.query.filter_by(id=match_picked_id).first()
 
-    elim_hunter_email = elim_picked.serialize()["hunter_email"]
-    elim_target_email = elim_picked.serialize()["target_email"]
+    match_hunter_email = match_picked.serialize()["hunter_email"]
+    match_target_email = match_picked.serialize()["target_email"]
 
     #complete elim_picked
-    elim_picked.time_ended = time_now()
-    elim_picked.reason = "Added user"
+    match_picked.time_ended = time_now()
+    match_picked.reason = "Added user"
 
-    new_elim_1 = Match(elim_hunter_email, email)
-    new_elim_2 = Match(email, elim_target_email)
-
-    db.session.add(new_elim_1)
-    db.session.add(new_elim_2)
+    create_new_match(match_hunter_email, email)
+    create_new_match(email, match_target_email)
 
     db.session.commit()
 
     return "New user created!"
-
-def revive_user():
-
-    #revive user
-
-    #find a new random location in the chain
-
-    #complete the elim with special reason and create two new elims to insert the new person
-
-    return "ok"
 
 def is_admin():
     if(flask.session["user_info"]["email"] in admins):
@@ -174,12 +159,26 @@ def eliminate_user_admin_route():
 
 @app.route('/eliminate_user', methods=["POST"])
 def eliminate_user_route():
-    print("Eliminating a user...")
-    print(request.json)
+    #if someone tries to fuck up the program, their identity will be known
+    print(flask.session["user_info"]["email"], "attempting to eliminate a user")
+    code = request.json["code"]
+
+    current_match = Match.query.filter_by(hunter_email=flask.session["user_info"]["email"]).filter_by(time_ended="").first()
+
+    if current_match is not None:
+        current_target_email = current_match.serialize()["target_email"]
+        current_target_id = User.query.filter_by(email=current_target_email).first().serialize()["id"]
+        if(code == current_target_id):
+            eliminate_user(current_target_email, True)
+            return "Success!"
+        else:
+            return "Invalid code, try again. (ps. There are 2 trillion possible combinations)"
+    else:
+        return "Oops, something went wrong. Contact the admins about this."
 
 @app.route('/')
 def index():
-    try:
+    if "user_info" in flask.session.keys():
         if(is_admin()):
             all_users = get_table(User)
             all_matches = get_table(Match)
@@ -194,16 +193,17 @@ def index():
         else:
             user_found = User.query.filter_by(email=flask.session["user_info"]["email"]).first()
             if user_found is not None:
+                current_match_of_user = Match.query.filter_by(hunter_email=flask.session["user_info"]["email"]).first().serialize()
+                target_info = User.query.filter_by(email=current_match_of_user["target_email"]).first().serialize()
                 return render_template('home.html',
                 user_info=user_found.serialize(),
-                target_info=Match.query.filter_by(hunter_email=flask.session["user_info"]["email"]).first().serialize(),
+                target_info=target_info,
                 logged_in=True
                 )
             else:
                 return render_template('not_logged.html',
                     logged_in=True)
-    except Exception as e:
-        print(e)
+    else:
         return render_template('index.html',
             logged_in=False)
 
@@ -241,6 +241,28 @@ def pause_game():
             return "Game paused"
         else:
             return "Game started"
+    else:
+        return "Access denied"
+
+@app.route('/shuffle_game', methods=['POST'])
+def shuffle_game():
+    if is_admin():
+
+        all_matches = Match.query.all()
+        for match in all_matches:
+            match.time_ended = time_now()
+            match.reason = "Game shuffled"
+
+        all_users = User.query.all()
+        all_emails = []
+        for user in all_users:
+            all_emails.append(user.serialize())
+        random.shuffle(all_emails)
+
+        for x in range(0,len(all_emails)-1):
+            create_new_match(all_emails[x], all_emails[x+1])
+        create_new_match(all_emails[len(users)-1]['email'], all_emails[0]['email'])
+
     else:
         return "Access denied"
 

@@ -25,7 +25,9 @@ class User(db.Model):
     time_immunity_activated = db.Column(db.String())
     immunity_duration = db.Column(db.Integer)
 
-    time_created = db.Column(db.String(), extend_existing=True)
+    time_created = db.Column(db.String())
+
+    num_revives = db.Column(db.Integer)
 
     def __init__(self, name, email):
 
@@ -42,6 +44,8 @@ class User(db.Model):
         self.immunity_duration = 0
 
         self.time_created = time_now()
+
+        self.num_revives = 0
 
         print('User created at time:', self.time_created)
 

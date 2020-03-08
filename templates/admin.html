@@ -61,19 +61,19 @@
 
 <div>
  <h2>Eliminate a user</h2>
- <form class="eliminate-form" onsubmit="return submitEliminate();">
- <input type=textarea name=email id="eliminate-textarea">
- <div>
-   <input type="checkbox" id="checkBox" onclick="switchCheckbox()">
-   <label>Increment hunter's elimination count</label>
- </div>
- <input type=submit value=Eliminate class="btn btn-danger">
+ <form class="eliminate-form" id="eliminate-form" onsubmit="return submitEliminate();">
+   <input type=textarea name=email id="eliminate-textarea">
+   <div>
+     <input type="checkbox" id="checkBox" onclick="switchCheckbox()">
+     <label>Increment hunter's elimination count</label>
+   </div>
+   <input type=submit value=Eliminate class="btn btn-danger">
 </form>
 </div>
 
 <div>
  <h2>Edit a user</h2>
- <form class="edit-form" onsubmit="return submitEdit();">
+ <form class="edit-form" id="edit-form" onsubmit="return submitEdit();">
    <div>previous:
    <label> email </label>
    <input type=textarea name=previous_email>
@@ -85,6 +85,7 @@
    <input type=textarea name=new_email>
    <label> name </label>
    <input type=textarea name=new_name>
+   <input type=textarea name=new_nameeeee>
    </div>
    <input type=submit value=Edit class="btn btn-primary">
  </form>
@@ -110,25 +111,29 @@
 <script>
 
   var incrementCheckbox = false;
+
   function switchCheckbox(){
     incrementCheckbox = !incrementCheckbox;
     console.log(incrementCheckbox);
   }
 
-
   function submitEdit(){
-    form = document.getElementById("edit-form");
+    var form = document.getElementById("edit-form");
+    console.log(form.elements["previous_name"].value);
     if(confirm('Do you really want to edit this user?')){
       axios({
         method:'post',
         url:'/edit_user',
         data:{
-          previous_name:form.elements["previous_name"].value,
-          previous_email:form.elements["previous_email"].value,
-          new_name:form.elements["news_name"].value,
-          new_email:form.elements["new_email"].value,
+          previous_name:form.elements["previous_name"].value, //form.elements["previous_name"].value,
+          previous_email:form.elements["previous_email"].value, //form.elements["previous_email"].value,
+          new_name:form.elements["new_name"].value, //form.elements["new_name"].value,
+          new_email:form.elements["new_email"].value //form.elements["new_email"].value,
         }
-      }).then(data => {alert(data["data"]); window.location.reload();})
+      }).catch(e=>console.log(e)).then(data => {
+        alert(data["data"]);
+        window.location.reload();
+      })
     }
     return false;
   }
@@ -143,7 +148,9 @@
           email:eliminating_email,
           increment_elimination_count:incrementCheckbox
         }
-      }).then(data => {alert(data["data"]); window.location.reload();})
+      }).then(data => {
+        alert(data["data"]);
+        window.location.reload();})
     }
 
     return false;

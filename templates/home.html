@@ -7,12 +7,21 @@
   <h3>User info</h3>
   <p>name: {{user_info["name"]}}</p>
   <p>email: {{user_info["email"]}}</p>
+  <p>number of elims: {{user_info["number_of_elims"]}}</p>
 </div>
+
+<div>
+  <h3>Target info</h3>
+  <p>name: {{target_info["name"]}}</p>
+  <p>email: {{target_info["email"]}}</p>
+</div>
+
 
 <div>
   <h3>ID</h3>
   <h4>id: {{user_info["id"]}}</h4>
 </div>
+
 
 <div>
   <div>
@@ -29,17 +38,15 @@
 
 <script>
 
-  function submitEliminationcode(){
+  function submitEliminationCode(){
     code = document.getElementById("elimination-code").value
-    if(confirm('Do you really want to eliminate this user?')){
-      axios({
-        method:'post',
-        url:'/eliminate_user',
-        data:{
-          code:code,
-        }
-      }).then(data => {alert(data["data"]); window.location.reload();})
-    }
+    axios({
+      method:'post',
+      url:'/eliminate_user',
+      data:{
+        code:code,
+      }
+    }).catch(e=>console.log(e)).then(data => {alert(data["data"]); window.location.reload();})
     return false;
   }
 
