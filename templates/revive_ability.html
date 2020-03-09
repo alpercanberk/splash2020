@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<p> Congratulations, you have found a revival code! </p>
+<p>
+  You may use this on yourself (if you're eliminated), or on your friend.
+  You are allowed to activate this code at any time;
+  however, keep in mind that others who have also found the code can activate it before you.
+</p>
+
+<div>
+ <h2>Revive user</h2>
+ <form class="revive-form" id="revive-form" onsubmit="return submitRevive();">
+   <div>Enter the information of the individual that you are reviving </div>
+   <label> email </label>
+   <input type=textarea name=email>
+   <input type=submit value=Activate />
+ </form>
+</div>
+
+
+<script>
+  function submitRevive(){
+    var form = document.getElementById("revive-form");
+    if(confirm('Do you really want to activate this code?')){
+      axios({
+        method:'post',
+        url:'/revive_ability',
+        data:{
+          email:form.elements["email"].value,
+          link: window.location.href
+        }
+      }).then(data => {alert(data["data"]); window.location.reload();})
+    }
+    return false;
+  }
+</script>
+
+{% endblock %}

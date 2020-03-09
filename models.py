@@ -29,6 +29,8 @@ class User(db.Model):
 
     num_revives = db.Column(db.Integer)
 
+    codes_found = db.Column(db.Integer)
+
     def __init__(self, name, email):
 
         self.id = generate_user_id()
@@ -46,8 +48,7 @@ class User(db.Model):
         self.time_created = time_now()
 
         self.num_revives = 0
-
-        print('User created at time:', self.time_created)
+        self.codes_found = 0
 
     def __repr__(self):
         return '<user {} {}>'.format(self.id, self.email)
@@ -63,7 +64,9 @@ class User(db.Model):
             'is_immune':self.is_immune,
             'time_immunity_activated':self.time_immunity_activated,
             'immunity_duration':self.immunity_duration,
-            'time_created':self.time_created
+            'time_created':self.time_created,
+            'num_revives':self.num_revives,
+            'codes_found':self.codes_found
         }
 
 class Match(db.Model):
@@ -85,8 +88,6 @@ class Match(db.Model):
         self.time_created = time_now()
         self.time_ended = ""
         self.reason = ""
-
-        print('Match created at time:', self.time_created)
 
     def __repr__(self):
         return '<match {}>'.format(self.id)
@@ -115,3 +116,27 @@ class Pause(db.Model):
 
     def serialize(self):
         return self.is_paused
+
+class Code(db.Model):
+    __tablename__ = "codes"
+
+    id = db.Column(db.Integer, primary_key=True)
+    code = db.Column(db.String())
+    type = db.Column(db.String())
+    duration =db.Column(db.Integer())
+    used_at = db.Column(db.String())
+    used_by = db.Column(db.String())
+    used_on = db.Column(db.String())
+
+    def __init__(self):
+        self.used_at = ""
+
+    def serialize(self):
+        return {
+            "id":self.id,
+            "code":self.code,
+            "used_at":self.used_at,
+            "used_by":self.used_by,
+            "used_on":self.used_on,
+            "duration":self.duration
+        }

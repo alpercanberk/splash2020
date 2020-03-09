@@ -5,6 +5,9 @@
 
 <div>Num users: {{basic_stats[0]}}</div>
 <div>Num matches: {{basic_stats[1]}}</div>
+<div>Num users alive: {{basic_stats[2]}}</div>
+<div>Num matches ongoing: {{basic_stats[3]}}</div>
+
 
 
 <table style="width:95%" class="table">
@@ -15,6 +18,7 @@
     <th>Number of Elims</th>
     <th>Time of Last Elim</th>
     <th>Time Eliminated</th>
+    <th>Immunity duration</th>
   </tr>
   {% for user in user_table %}
     <tr>
@@ -24,6 +28,7 @@
       <td>{{user["number_of_elims"]}}</td>
       <td>{{user["time_of_last_elim"]}}</td>
       <td>{{user["time_eliminated"]}}</td>
+      <td>{{user["immunity_duration"]}}</td>
     </tr>
   {% endfor %}
 </table>
@@ -46,18 +51,48 @@
     </tr>
   {% endfor %}
 </table>
-<!--
+
+<table style="width:95%" class="table">
+  <tr>
+    <th>Code</th>
+    <th>Type</th>
+    <th>Duration</th>
+    <th>Used at</th>
+    <th>Used by</th>
+    <th>Used on</th>
+  </tr>
+  {% for code in codes_table %}
+    <tr>
+      <td>{{code["code"]}}</td>
+      <td>{{code["type"]}}</td>
+      <td>{{code["duration"]}}</td>
+      <td>{{code["used_at"]}}</td>
+      <td>{{code["used_by"]}}</td>
+      <td>{{code["used_on"]}}</td>
+    </tr>
+  {% endfor %}
+</table>
+
+
 <div>
  <h2>Add a user</h2>
- <form class="add-form" onsubmit="return submitEliminate();">
+ <form class="add-form" id="add-form" onsubmit="return submitAdd();">
  <label> email </label>
  <input type=textarea name=email id="add-textarea-email">
  <label> name </label>
- <input type=textarea name=email id="add-textarea-name">
+ <input type=textarea name=name id="add-textarea-name">
  <input type=submit value=Add class="btn btn-primary">
 </form>
-</div> -->
+</div>
 
+<div>
+ <h2>Revive a user</h2>
+ <form class="revive-form" id="revive-form" onsubmit="return submitRevive();">
+ <label> email </label>
+ <input type=textarea name=email id="add-textarea-email">
+ <input type=submit value=Add class="btn btn-primary">
+</form>
+</div>
 
 <div>
  <h2>Eliminate a user</h2>
@@ -68,6 +103,15 @@
      <label>Increment hunter's elimination count</label>
    </div>
    <input type=submit value=Eliminate class="btn btn-danger">
+</form>
+</div>
+
+<div>
+ <h2>Grant immunity to a user</h2>
+ <form class="immunity-form" id="immunity-form" onsubmit="return submitImmunity();">
+   <input type=textarea name=email id="immunity-email">
+   <input type=textarea name=duration id="immunity-duration">
+   <input type=submit value="Grant immunity" class="btn btn-secondary">
 </form>
 </div>
 
@@ -85,7 +129,6 @@
    <input type=textarea name=new_email>
    <label> name </label>
    <input type=textarea name=new_name>
-   <input type=textarea name=new_nameeeee>
    </div>
    <input type=submit value=Edit class="btn btn-primary">
  </form>
@@ -100,13 +143,20 @@
  </div>
  </form>
 </div>
+
 {% if not is_paused %}
 <button class='btn btn-primary' onclick="pauseGame();"> Pause Game </div>
 {% else %}
 <button class='btn btn-primary' onclick="pauseGame();"> Continue Game </div>
 {% endif %}
 
-<button class='btn btn-primary'> Shuffle Game </div>
+<form action="/shuffle_game" method="post">
+<input type="submit" value="Shuffle Game" class='btn btn-primary' onclick="shuffleGame()">
+</form>
+
+<form action="/activate_24_hour_round" method="post">
+<input type="submit" value="Complete 24 Hour Round" class='btn btn-primary' onclick="activate24();">
+</form>
 
 <script>
 
@@ -117,6 +167,7 @@
     console.log(incrementCheckbox);
   }
 
+
   function submitEdit(){
     var form = document.getElementById("edit-form");
     console.log(form.elements["previous_name"].value);
@@ -125,10 +176,10 @@
         method:'post',
         url:'/edit_user',
         data:{
-          previous_name:form.elements["previous_name"].value, //form.elements["previous_name"].value,
-          previous_email:form.elements["previous_email"].value, //form.elements["previous_email"].value,
-          new_name:form.elements["new_name"].value, //form.elements["new_name"].value,
-          new_email:form.elements["new_email"].value //form.elements["new_email"].value,
+          previous_name:form.elements["previous_name"].value,
+          previous_email:form.elements["previous_email"].value,
+          new_name:form.elements["new_name"].value,
+          new_email:form.elements["new_email"].value
         }
       }).catch(e=>console.log(e)).then(data => {
         alert(data["data"]);
@@ -156,6 +207,30 @@
     return false;
   }
 
+  function submitImmunity(){
+    immunity_email = document.getElementById("immunity-email").value
+    immunity_duration = document.getElementById("immunity-duration").value
+    if(immunity_email != "" && immunity_duration != "" && !(isNaN(immunity_duration)))
+      if(confirm('Do you really want to grant immunity to this user?')){
+        axios({
+          method:'post',
+          url:'/grant_immunity',
+          data:{
+            email:immunity_email,
+            duration:immunity_duration
+          }
+        }).then(data => {
+          alert(data["data"]);
+          window.location.reload();})
+      }
+    else{
+      alert("Invalid input. Try again.")
+    }
+
+    return false;
+  }
+
+
   function pauseGame(){
     axios({
       method:'post',
@@ -164,21 +239,35 @@
   }
 
 
-  // function submitAdd(e){
-  //   e.preventDefault();
-  //   adding_email = document.getElementById("eliminate-textarea").value
-  //   if(confirm('Do you really want to add this user?')){
-  //     axios({
-  //       method:'post',
-  //       url:'/eliminate_user_admin',
-  //       data:{
-  //         email:eliminating_email,
-  //         increment_elimination_count:incrementCheckbox
-  //       }
-  //     }).then(data => {alert(data["data"]);})
-  //   }
-  //   return false;
-  // }
+  function submitAdd(){
+    var form = document.getElementById("add-form");
+    console.log(form.elements["email"].value)
+    if(confirm('Do you really want to add this user?')){
+      axios({
+        method:'post',
+        url:'/add_user',
+        data:{
+          email:form.elements["email"].value,
+          name:form.elements["name"].value,
+        }
+      }).then(data => {alert(data["data"]); window.location.reload();})
+    }
+    return false;
+  }
+
+  function submitRevive(){
+    var form = document.getElementById("revive-form");
+    if(confirm('Do you really want to revive this user?')){
+      axios({
+        method:'post',
+        url:'/revive_user',
+        data:{
+          email:form.elements["email"].value,
+        }
+      }).then(data => {alert(data["data"]); window.location.reload();})
+    }
+    return false;
+  }
 
 
 

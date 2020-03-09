@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<p> Congratulations, you have found an immunity code! </p>
+<p>As soon as you activate this code, you will gain {{duration}} minutes of immunity</p>
+<p>
+  You may use this on yourself, or on your friend at any time;
+  however, keep in mind that others who have also found the code can activate it before you.
+</p>
+<p></p>
+
+<div>
+ <h2>Grant Immunity</h2>
+ <form class="immunity-form" id="immunity-form" onsubmit="return submitImmunity();">
+   <div>Enter the information of the individual that you are granting immunity to</div>
+   <label> email </label>
+   <input type=textarea name=email>
+   <input type=submit value="Grant Immunity"/>
+ </form>
+</div>
+
+
+<script>
+  function submitImmunity(){
+    var form = document.getElementById("immunity-form");
+    if(confirm('Do you really want to activate this code?')){
+      axios({
+        method:'post',
+        url:'/immunity_ability',
+        data:{
+          email:form.elements["email"].value,
+          link: window.location.href
+        }
+      }).then(data => {alert(data["data"]); window.location.reload();})
+    }
+    return false;
+  }
+</script>
+
+{% endblock %}

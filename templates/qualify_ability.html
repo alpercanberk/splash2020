@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block content %}
+
+
+<p> Congratulations, you have found a qualifying code! </p>
+<p> If you activate this code, you will qualify for the Splash finals insantly but
+  you will be virtually eliminated and therefore unable to perform any actions until then </p>
+<p>
+  You may use only use this code on yourself.
+  You are allowed to activate this code at any time;
+  however, keep in mind that others who have also found the code can activate it before you.
+</p>
+
+<div>
+ <h2>Qualify </h2>
+ <form class="qualify-form" id="revive-form" onsubmit="return submitQualify();">
+   <input type=submit value="Qualify" />
+ </form>
+</div>
+
+
+<script>
+  function submitQualify(){
+    if(confirm('Do you really want to activate this code and qualify for the finals even though you will be eliminated until then?')){
+      axios({
+        method:'post',
+        url:'/qualify_ability',
+        data:{
+          link: window.location.href
+        }
+      }).then(data => {alert(data["data"]); window.location.reload();})
+    }
+    return false;
+  }
+</script>
+{% endblock %}
