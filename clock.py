@@ -52,6 +52,6 @@ def wear_down_immunity():
         pass
 
 scheduler = BackgroundScheduler()
-scheduler.add_job(func=wear_down_immunity, trigger="interval", seconds=60)
+scheduler.add_job(func=wear_down_immunity, trigger="interval", seconds=10)
 scheduler.add_job(func=get_all_stats, trigger="interval", seconds=10)
 scheduler.start()
