@@ -16,7 +16,7 @@ def get_all_stats():
         #
         #     leaderboard = get_leaderboard(10)
         #
-        #     number_of_codes_in_game = len(Code.query.all())
+        #     number_of_codes_in_game =len(Code.query.all())
         #     number_of_codes_activated = len(Code.query.filter_by(used_at=None).all())
         #
         #     code_leaderboard = User.query.order_by(User.codes_found.desc()).limit(3).all()
