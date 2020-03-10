@@ -64,7 +64,7 @@ def get_all_stats():
 
 def wear_down_immunity():
     print("Immunity works")
-    users_with_immunity = User.query.filter(User.immunity_duration != 0).all()
+    users_with_immunity = User.query.filter(User.immunity_duration > 0).all()
     if(users_with_immunity is not None):
         for immune_user in users_with_immunity:
             immune_user.immunity_duration -= 1
