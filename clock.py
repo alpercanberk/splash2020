@@ -31,6 +31,10 @@ app.secret_key = os.environ['SECRET_KEY']
 
 from models import *
 
+def get_leaderboard(n_users):
+    leaderboard = User.query.order_by(User.number_of_elims.desc()).limit(n_users).all()
+    return [user.serialize() for user in leaderboard]
+
 def get_table(table):
     all_elements = table.query.all()
     return [e.serialize() for e in all_elements]
