@@ -31,6 +31,18 @@ app.secret_key = os.environ['SECRET_KEY']
 
 from models import *
 
+def get_table(table):
+    all_elements = table.query.all()
+    return [e.serialize() for e in all_elements]
+
+def get_basic_stats():
+    n_users = len(get_table(User))
+    n_matches = len(get_table(Match))
+    n_users_alive = len(User.query.filter_by(time_eliminated="").all())
+    n_matches_ongoing = len(Match.query.filter_by(time_ended="").all())
+
+    return n_users, n_matches, n_users_alive, n_matches_ongoing
+
 def get_all_stats():
     n_users, n_matches, n_users_alive, n_matches_ongoing = get_basic_stats()
 
@@ -63,7 +75,7 @@ def get_all_stats():
 
 
 def wear_down_immunity():
-    print("Immunity works")
+    # print("Immunity works")
     users_with_immunity = User.query.filter(User.immunity_duration > 0).all()
     if(users_with_immunity is not None):
         for immune_user in users_with_immunity:
