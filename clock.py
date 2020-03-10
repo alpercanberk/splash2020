@@ -6,9 +6,9 @@ scheduler = BackgroundScheduler()
 
 @scheduler.scheduled_job('interval', seconds=10)
 def get_all_stats():
-    print(">>>>>>")
-    print(Stats.query.first())
-    print(">>>>>>")
+    print("Get all stats works")
+    # print(Stats.query.first())
+    # print(">>>>>>")
 
         # try:
         #     n_users, n_matches, n_users_alive, n_matches_ongoing = get_basic_stats()
@@ -44,14 +44,15 @@ def get_all_stats():
 
 @scheduler.scheduled_job('interval', seconds=10)
 def wear_down_immunity():
-    users_with_immunity = User.query.filter_by(User.immunity_duration != 0).all()
-    try:
-        if(users_with_immunity is not None):
-            for immune_user in users_with_immunity:
-                immune_user.immunity_duration -= 1
-            db.session.commit()
-    except:
-        pass
+    print("Immunity works")
+    # users_with_immunity = User.query.filter_by(User.immunity_duration != 0).all()
+    # try:
+    #     if(users_with_immunity is not None):
+    #         for immune_user in users_with_immunity:
+    #             immune_user.immunity_duration -= 1
+    #         db.session.commit()
+    # except:
+    #     pass
 
 # scheduler.add_job(func=wear_down_immunity, trigger="interval", seconds=10)
 # scheduler.add_job(func=get_all_stats, trigger="interval", seconds=10)
