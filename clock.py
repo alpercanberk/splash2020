@@ -31,7 +31,6 @@ app.secret_key = os.environ['SECRET_KEY']
 
 from models import *
 
-@scheduler.scheduled_job('interval', seconds=10)
 def get_all_stats():
     print("Get all stats works")
     print(Stats.query.first())
@@ -69,7 +68,6 @@ def get_all_stats():
         # except:
         #     Stats.query.first().stats = ""
 
-@scheduler.scheduled_job('interval', seconds=10)
 def wear_down_immunity():
     print("Immunity works")
     users_with_immunity = User.query.filter_by(User.immunity_duration != 0).all()
@@ -78,6 +76,5 @@ def wear_down_immunity():
             immune_user.immunity_duration -= 1
         db.session.commit()
 
-scheduler.add_job(func=wear_down_immunity, trigger="interval", seconds=10)
-scheduler.add_job(func=get_all_stats, trigger="interval", seconds=10)
-scheduler.start()
+get_all_stats()
+wear_down_immunity()
