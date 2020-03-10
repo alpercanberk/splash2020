@@ -5,11 +5,11 @@ from models import *
 scheduler = BackgroundScheduler()
 
 @scheduler.scheduled_job('interval', seconds=10)
-    def get_all_stats():
+def get_all_stats():
 
-        print(">>>>>>")
-        print(Stats.query.first())
-        print(">>>>>>")
+    print(">>>>>>")
+    print(Stats.query.first())
+    print(">>>>>>")
 
         # try:
         #     n_users, n_matches, n_users_alive, n_matches_ongoing = get_basic_stats()

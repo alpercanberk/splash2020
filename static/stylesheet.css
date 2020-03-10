@@ -1,19 +1,25 @@
-#base-body {
+/* #base-body {
   padding:20px;
-}
+} */
 
 #base-navbar {
   border-radius:5px;
   margin-bottom:10px;
+  margin:10px;
+}
+
+#index-content{
+  background-color:white;
 }
 
 body{
-  background: linear-gradient(-45deg,  #0149E7, #000000, #0149E7);
-	background-size: 400% 400%;
+  /* background: linear-gradient(-45deg,  #0149E7, #000000, #0149E7); */
+	/* background-size: 400% 400%;
 	-webkit-animation: gradientBG 8s ease infinite;
-	        animation: gradientBG 8s ease infinite;
+	        animation: gradientBG 8s ease infinite; */
+  background-color:#257BFF;
 }
-
+/*
 @-webkit-keyframes gradientBG {
 	0% {
 		background-position: 0% 50%;
@@ -35,4 +41,4 @@ body{
 	100% {
 		background-position: 0% 50%;
 	}
-}
+} */
