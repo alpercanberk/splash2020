@@ -6,7 +6,6 @@ scheduler = BackgroundScheduler()
 
 @scheduler.scheduled_job('interval', seconds=10)
 def get_all_stats():
-
     print(">>>>>>")
     print(Stats.query.first())
     print(">>>>>>")
