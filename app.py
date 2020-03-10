@@ -18,9 +18,6 @@ from lists import *
 from flask_sslify import SSLify
 from flask_sqlalchemy import SQLAlchemy
 
-from models import *
-
-from apscheduler.schedulers.background import BackgroundScheduler
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ["DATABASE_URL"]
@@ -33,6 +30,7 @@ db = SQLAlchemy(app)
 #setup secret key for oauth2
 app.secret_key = os.environ['SECRET_KEY']
 
+from models import *
 
 def expire_ability(code, used_by, used_on):
     ability = Code.query.filter_by(code=code).first()
