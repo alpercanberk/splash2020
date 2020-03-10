@@ -556,9 +556,9 @@ def activate24():
 def leaderboard():
     return str(get_leaderboard(3))
 
-# @app.route('/get_all_stats')
-# def all_stats_route():
-#     return str(Stats.query.first().serialize())
+@app.route('/get_all_stats')
+def all_stats_route():
+    return str(Stats.query.first().serialize())
 
 if __name__ == '__main__':
     # get_all_stats()
