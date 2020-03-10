@@ -30,7 +30,7 @@
           email:form.elements["email"].value,
           link: window.location.href
         }
-      }).then(data => {alert(data["data"]); window.location.reload();})
+      }).then(data => {alert(data["data"]); window.location.href = "/";})
     }
     return false;
   }

@@ -37,6 +37,21 @@
   </div>
 </div>
 
+<div>
+  <div>
+   <h2>Submit special code</h2>
+   <form onsubmit="return submitAbilityCode();">
+   <div class="form-group">
+   <input type=textarea name=code id=ability-code>
+   <input type=submit value="Submit code" class="btn btn-primary">
+   </div>
+   </form>
+  </div>
+</div>
+
+<div>Game Status</div>
+<div>Is immunity on? {{is_immunity_on}} </div>
+<di> Is paused? {{is_paused}} </div>
 
 <script>
 
@@ -49,6 +64,12 @@
         code:code,
       }
     }).catch(e=>console.log(e)).then(data => {alert(data["data"]); window.location.reload();})
+    return false;
+  }
+
+  function submitAbilityCode(){
+    code = document.getElementById("ability-code").value
+    window.location.href = "/ability/" + code
     return false;
   }
 

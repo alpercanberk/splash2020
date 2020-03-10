@@ -2,8 +2,13 @@
   padding:20px;
 }
 
+#base-navbar {
+  border-radius:5px;
+  margin-bottom:10px;
+}
+
 body{
-  background: linear-gradient(-45deg, #000000, #002c8c, #0050ff, #3071ff, #0050ff, #002c8c, #000000);
+  background: linear-gradient(-45deg,  #0149E7, #000000, #0149E7);
 	background-size: 400% 400%;
 	-webkit-animation: gradientBG 8s ease infinite;
 	        animation: gradientBG 8s ease infinite;

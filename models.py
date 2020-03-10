@@ -117,6 +117,37 @@ class Pause(db.Model):
     def serialize(self):
         return self.is_paused
 
+class Immunity(db.Model):
+    __tablename__ = 'immunity'
+
+    id = db.Column(db.Integer, primary_key=True)
+    is_immunity_on = db.Column(db.Boolean)
+
+    def __init__(self):
+        self.is_immunity_on = True
+
+    def __repr__(self):
+        return '< immunity in state ' + str(self.is_immunity_on) + ' >'
+
+    def serialize(self):
+        return self.is_immunity_on
+
+class Stats(db.Model):
+    __tablename__ = 'stats'
+
+    id = db.Column(db.Integer, primary_key=True)
+    stats = db.Column(db.String())
+
+    def __init__(self):
+        self.stats = ""
+
+    def __repr__(self):
+        return '< stats >'
+
+    def serialize(self):
+        return self.stats
+
+
 class Code(db.Model):
     __tablename__ = "codes"
 

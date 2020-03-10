@@ -11,14 +11,25 @@
   <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 </head>
 <body id="base-body">
-  <div class="jumbotron">
-  <h1 class="display-4">Splash</h1>
+
+
+  <nav class="navbar navbar-light bg-light" id="base-navbar">
+    <a class="navbar-brand" href="#">
+      <strong>Splash</strong>
+    </a>
+    <span class="navbar-text">
+          {% if not logged_in %}
+            <a href="/auth/google"><button class="btn btn-primary">Log in</button></a>
+          {% else %}
+            <a href="/logout"><button class="btn btn-primary">Log out</button></a>
+          {% endif %}
+    </span>
+  </nav>
+
+  <div class="jumbotron" id="base-jumbotron">
+  <!-- <h1 class="display-4">Splash</h1> -->
   <!-- Render log in / log out button based on state -->
-  {% if not logged_in %}
-    <a href="/auth/google"><button class="btn btn-primary">Log in</button></a>
-  {% else %}
-    <a href="/logout"><button class="btn btn-primary">Log out</button></a>
-  {% endif %}
+
 
   {% block content %}
   {% endblock %}

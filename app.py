@@ -11,14 +11,16 @@ import random
 import time
 import atexit
 
-from apscheduler.schedulers.background import BackgroundScheduler
-
 from routes import *
 from utils import *
 from lists import *
 
 from flask_sslify import SSLify
 from flask_sqlalchemy import SQLAlchemy
+
+from models import *
+
+from apscheduler.schedulers.background import BackgroundScheduler
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ["DATABASE_URL"]
@@ -31,7 +33,6 @@ db = SQLAlchemy(app)
 #setup secret key for oauth2
 app.secret_key = os.environ['SECRET_KEY']
 
-from models import *
 
 def expire_ability(code, used_by, used_on):
     ability = Code.query.filter_by(code=code).first()
@@ -41,7 +42,9 @@ def expire_ability(code, used_by, used_on):
         ability.used_on = used_on
         ability.used_by = used_by
 
-        User.query.filter_by(email=used_by).first().codes_found += 1
+        user = User.query.filter_by(email=used_by).first()
+        if(user is not None):
+            user.codes_found += 1
 
         db.session.commit()
     else:
@@ -86,36 +89,6 @@ def get_leaderboard(n_users):
     leaderboard = User.query.order_by(User.number_of_elims.desc()).limit(n_users).all()
     return [user.serialize() for user in leaderboard]
 
-
-def get_all_stats():
-    n_users, n_matches, n_users_alive, n_matches_ongoing = get_basic_stats()
-
-    leaderboard = get_leaderboard(10)
-
-    number_of_codes_in_game = len(Code.query.all())
-    number_of_codes_activated = len(Code.query.filter_by(used_at=None).all())
-
-    code_leaderboard = User.query.order_by(User.codes_found.desc()).limit(3).all()
-    code_leaderboard = [user.serialize() for user in code_leaderboard]
-
-    # qualified_board = [user.serialize() for user in User.query.filter("-Q*" in User.name).all()]
-
-    immunity_board = [user.serialize() for user in User.query.filter(User.immunity_duration != 0).all()]
-
-    return{
-        "n_users":n_users,
-        "n_matches":n_matches,
-        "n_users_alive":n_users_alive,
-        "n_matches_ongoing":n_matches_ongoing,
-        "leaderboard":leaderboard,
-        "number_of_codes_in_game":number_of_codes_in_game,
-        "number_of_codes_activated":number_of_codes_activated,
-        "code_leaderboard":code_leaderboard,
-        # "qualified_board":qualified_board,
-        "immunity_board":immunity_board
-        }
-
-
 def eliminate_user(email, increment_elimination_count=False):
 
     print("Eliminate user function activated")
@@ -123,8 +96,6 @@ def eliminate_user(email, increment_elimination_count=False):
     user_being_eliminated = User.query.filter_by(email=email).first()
 
     #check if the user exists
-    print(user_being_eliminated)
-    print(user_being_eliminated is not None)
 
     if(user_being_eliminated is not None):
         user_active_match_hunter = Match.query.filter_by(hunter_email=email).filter_by(time_ended="").first()
@@ -185,6 +156,10 @@ def is_paused():
     pause = Pause.query.first()
     return pause.serialize()
 
+def is_immunity_on():
+    immunity = Immunity.query.first()
+    return immunity.serialize()
+
 def grant_immunity(email, minutes):
     user_found = User.query.filter_by(email=email).filter_by(time_eliminated="").first()
     if user_found is not None:
@@ -193,17 +168,6 @@ def grant_immunity(email, minutes):
         return True
     else:
         return False
-
-def wear_down_immunity():
-    try:
-        users_with_immunity = User.query.filter(User.immunity_duration != 0).all()
-        if(users_with_immunity is not None):
-            for immune_user in users_with_immunity:
-                immune_user.immunity_duration -= 1
-            db.session.commit()
-    except:
-        pass
-
 
 def insert_into_chain(email, reason):
 
@@ -254,16 +218,19 @@ def eliminate_user_route():
         current_target_email = current_match.serialize()["target_email"]
         current_target_id = User.query.filter_by(email=current_target_email).first().serialize()["id"]
         current_target_immunity_duration = User.query.filter_by(email=current_target_email).first().serialize()["immunity_duration"]
-        if(code == current_target_id):
-            if(current_target_immunity_duration <= 0):
-                eliminate_user(current_target_email, True)
-                return "Success!"
+        if not is_paused():
+            if(code == current_target_id):
+                if(current_target_immunity_duration <= 0 or (not is_immunity_on())):
+                    eliminate_user(current_target_email, True)
+                    return "Success!"
+                else:
+                    return "The code is correct, but your target seems to have immunity on.\
+                    If they activated their immuninty in front of you,\
+                    notify the Splashmasters because they are not allowed to do that"
             else:
-                return "The code is correct, but your target seems to have immunity on.\
-                If they activated their immuninty in front of you,\
-                notify the Splashmasters because they are not allowed to do that"
+                return "Invalid code, try again. (ps. There are 2 trillion possible combinations)"
         else:
-            return "Invalid code, try again. (ps. There are 2 trillion possible combinations)"
+            return "Chill out, the game is paused"
     else:
         return "Oops, something went wrong. Contact the admins about this."
 
@@ -301,7 +268,9 @@ def index():
                     return render_template('home.html',
                     user_info=user_found.serialize(),
                     target_info=target_info.serialize(),
-                    logged_in=True
+                    logged_in=True,
+                    is_paused=(is_paused()),
+                    is_immunity_on=(is_immunity_on())
                     )
                 else:
                     return render_template('eliminated.html', logged_in=True)
@@ -365,12 +334,15 @@ def ability(code):
             if(code_found[0] == "Q"):
                 return render_template("qualify_ability.html", logged_in = True)
         else:
-            print('Invalid code attempt by', flask.session["user_info"]["email"])
-            return "Invalid code, try again."
+            print('Invalid ability code attempt by', flask.session["user_info"]["email"])
+            return render_template("invalid_ability_code.html")
     else:
         #TODO make this page
         return "Log in in order to gain new ability by clicking <a href='/auth/google'>here</a>"
 
+@app.route('/ability/')
+def ability_index():
+    return render_template("invalid_ability_code.html")
 
 @app.route('/pause_game', methods=['POST'])
 def pause_game():
@@ -507,6 +479,8 @@ def upload():
 
             #create new pause variable
             db.session.add(Pause())
+            db.session.add(Immunity())
+            db.session.add(Stats())
 
             #gets the excel file from front-end
             arr = request.get_array(field_name='file')
@@ -583,14 +557,11 @@ def activate24():
 def leaderboard():
     return str(get_leaderboard(3))
 
-@app.route('/get_all_stats')
-def all_stats():
-    return str(get_all_stats())
-
-scheduler = BackgroundScheduler()
-scheduler.add_job(func=wear_down_immunity, trigger="interval", seconds=60)
-scheduler.start()
+# @app.route('/get_all_stats')
+# def all_stats_route():
+#     return str(Stats.query.first().serialize())
 
 if __name__ == '__main__':
+    # get_all_stats()
     app.config['SESSION_TYPE'] = 'filesystem'
     app.run()
