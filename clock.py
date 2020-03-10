@@ -31,6 +31,14 @@ app.secret_key = os.environ['SECRET_KEY']
 
 from models import *
 
+def is_paused():
+    pause = Pause.query.first()
+    return pause.serialize()
+
+def is_immunity_on():
+    immunity = Immunity.query.first()
+    return immunity.serialize()
+    
 def get_leaderboard(n_users):
     leaderboard = User.query.order_by(User.number_of_elims.desc()).limit(n_users).all()
     return [user.serialize() for user in leaderboard]
