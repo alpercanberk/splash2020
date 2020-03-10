@@ -547,7 +547,7 @@ def activate24():
 
         return Response(generate(), mimetype='text/html')
 
-        return "24 HOUR ROUND ACTIVATED!"
+        return "24 HOUR ROUND ACTIVATED!!!"
     else:
         return "Access denied"
 
