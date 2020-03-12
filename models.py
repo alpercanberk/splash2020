@@ -1,12 +1,11 @@
 from flask_sqlalchemy import SQLAlchemy
 from app import db
+import json
 
 import time
 from datetime import datetime
 from pytz import timezone
 from utils import generate_user_id, time_now
-
-
 
 class User(db.Model):
     __tablename__ = 'users'
@@ -31,6 +30,8 @@ class User(db.Model):
 
     codes_found = db.Column(db.Integer)
 
+    rank = db.Column(db.Integer)
+
     def __init__(self, name, email):
 
         self.id = generate_user_id()
@@ -49,6 +50,7 @@ class User(db.Model):
 
         self.num_revives = 0
         self.codes_found = 0
+        self.rank = 0
 
     def __repr__(self):
         return '<user {} {}>'.format(self.id, self.email)
@@ -66,7 +68,8 @@ class User(db.Model):
             'immunity_duration':self.immunity_duration,
             'time_created':self.time_created,
             'num_revives':self.num_revives,
-            'codes_found':self.codes_found
+            'codes_found':self.codes_found,
+            'rank':self.rank
         }
 
 class Match(db.Model):
@@ -145,7 +148,7 @@ class Stats(db.Model):
         return '< stats >'
 
     def serialize(self):
-        return self.stats
+        return eval(self.stats.replace("'","\""))
 
 
 class Code(db.Model):

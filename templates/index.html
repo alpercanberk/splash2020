@@ -1,4 +1,46 @@
 {% extends 'base.html' %}
 {% block content %}
 
+<div id="index-jumbotron">
+  <div class="jumbotron-container"></div>
+  <div id="index-jumbotron-inner">
+  <h1 id="index-logo">SPLASH</h1>
+  <p>"All warfare is based on deception" - Sun Tzu </p>
+  </div>
+</div>
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320">
+  <path fill="#ffffff" fill-opacity="1" d="M0,192L48,202.7C96,213,192,235,288,208C384,181,480,107,576,96C672,85,768,139,864,165.3C960,192,1056,192,1152,170.7C1248,149,1344,107,1392,85.3L1440,64L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
+</svg>
+
+<div id=index-content>
+<p class="index-text">
+  Splash is a school-wide game of tag.  Your goal is to splash your target with water before another person who has your name splashes you first.  If you successfully splash someone, their target now becomes your new target.
+</p>
+<p class="index-text">
+  The game lasts until there is only one person left and this person receives an award of $100.
+</p>
+<p class="index-text">
+  The person who splashes the most people will also receive a prize.
+</p>
+
+<div id=index-video-wrapper>
+<iframe id="index-video" width="560" height="315" src="https://www.youtube.com/embed/DKg1Tyt5Lps" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+</div>
+
+<p class="index-player-count"><span style="font-size:40px">{{all_stats["n_users_alive"]}}</span> out of <span style="font-size:40px">{{all_stats["n_users"]}}</span> players left</p>
+
+<div class="leaderboard">
+  <h1>Leaderboard</h1>
+  <div style="width:70%">
+  <ol>
+    {% for user in all_stats["leaderboard"] %}
+    <li class="leaderboard-item">{{user["name"]}} - {{user["number_of_elims"]}} Eliminations</li>
+    {% endfor %}
+  </ol>
+  </div>
+</div>
+
+</div>
+
 {% endblock %}

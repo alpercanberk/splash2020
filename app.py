@@ -88,6 +88,13 @@ def get_leaderboard(n_users):
     leaderboard = User.query.order_by(User.number_of_elims.desc()).limit(n_users).all()
     return [user.serialize() for user in leaderboard]
 
+
+def compute_ranks():
+
+    all_users = User.query.order_by(User.number_of_elims.desc()).all()
+    for i in range(0, len(all_users)):
+        all_users[i].rank = i+1
+
 def eliminate_user(email, increment_elimination_count=False):
 
     print("Eliminate user function activated")
@@ -134,6 +141,8 @@ def eliminate_user(email, increment_elimination_count=False):
         #kill the user
         user_being_eliminated.time_eliminated = time_now()
 
+        compute_ranks()
+
         db.session.commit()
 
         return "Elimination successful"
@@ -158,6 +167,9 @@ def is_paused():
 def is_immunity_on():
     immunity = Immunity.query.first()
     return immunity.serialize()
+
+def get_all_stats():
+    return Stats.query.first().serialize()
 
 def grant_immunity(email, minutes):
     user_found = User.query.filter_by(email=email).filter_by(time_eliminated="").first()
@@ -256,7 +268,8 @@ def index():
             match_table = all_matches,
             basic_stats = (get_basic_stats()),
             is_paused = (is_paused()),
-            codes_table = (get_table(Code))
+            codes_table = (get_table(Code)),
+            all_stats = (get_all_stats())
             )
         else:
             user_found = User.query.filter_by(email=flask.session["user_info"]["email"]).first()
@@ -267,17 +280,22 @@ def index():
                     return render_template('home.html',
                     user_info=user_found.serialize(),
                     target_info=target_info.serialize(),
+                    basic_stats = (get_basic_stats()),
                     logged_in=True,
                     is_paused=(is_paused()),
-                    is_immunity_on=(is_immunity_on())
+                    is_immunity_on=(is_immunity_on()),
+                    all_stats = (get_all_stats())
                     )
                 else:
                     return render_template('eliminated.html', logged_in=True)
             else:
                 return render_template('not_logged.html',
+                    basic_stats = (get_basic_stats()),
+                    all_stats = (get_all_stats()),
                     logged_in=True)
     else:
         return render_template('index.html',
+            all_stats = (get_all_stats()),
             logged_in=False)
 
 @app.route('/edit_user', methods=['POST'])
@@ -475,6 +493,8 @@ def upload():
             User.query.delete()
             Match.query.delete()
             Pause.query.delete()
+            Stats.query.delete()
+            Immunity.query.delete()
 
             #create new pause variable
             db.session.add(Pause())
@@ -499,6 +519,7 @@ def upload():
                     create_new_match(users[x]['email'], users[x+1]['email'])
                 create_new_user(users[len(users)-1]['name'], users[len(users)-1]['email'])
                 create_new_match(users[len(users)-1]['email'], users[0]['email'])
+                compute_ranks()
                 yield "<div></div> All users uploaded, let the games begin!"
                 yield "<div><button><a href="+ "/" + ">Take me back to admin page</a></button></div>"
 
@@ -556,9 +577,9 @@ def activate24():
 def leaderboard():
     return str(get_leaderboard(3))
 
-@app.route('/get_all_stats')
-def all_stats_route():
-    return str(Stats.query.first().serialize())
+@app.route('/all_stats')
+def all_stats():
+    return str(get_all_stats())
 
 if __name__ == '__main__':
     # get_all_stats()

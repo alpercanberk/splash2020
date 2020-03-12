@@ -1,58 +1,78 @@
 {% extends 'base.html' %}
 {% block content %}
 
-<p> Home page </p>
+<h1 class="title"> Home page </h1>
 
-<div>
-  <h3>User info</h3>
-  <p>name: {{user_info["name"]}}</p>
-  <p>email: {{user_info["email"]}}</p>
-  <p>number of elims: {{user_info["number_of_elims"]}}</p>
-  <p>immunity_duration: {{user_info["immunity_duration"]}}</p>
-</div>
+  <div class="card">
+    <h3 class="card-title">your profile</h3>
+    <h4 class="user-code">CODE: {{user_info["id"]}}</h4>
+    <div class="row">
+    <div class="col-8">
+    <div style="font-size:23px;font-weight:bold">{{user_info["name"]}}</div>
+    <div><strong>Email: </strong>{{user_info["email"]}}</div>
+    <div><strong>Number of elims: </strong>{{user_info["number_of_elims"]}}</div>
+    <div><strong>Immunity left: </strong>{{user_info["immunity_duration"]}} minutes</div>
+    <div>
+    {% if all_stats["is_immunity_on"] %}
+      <span class="badge badge-success">Immunity Active</span>
+    {% else %}
+      <span class="badge badge-secondary">Immunity Disabled</span>
+    {% endif %}
+    </div>
+    </div>
+    <div class="col-4" style="padding:5px;padding-top:5px;padding-right:18px;max-width:300px;">
+      <div id="rank-display">
+      <div style="font-size:22px">RANK</div>
+      <div>#{{user_info["rank"]}}</div>
+      </div>
+    </div>
+    </div>
+  </div>
 
-<div>
-  <h3>Target info</h3>
-  <p>name: {{target_info["name"]}}</p>
-  <p>email: {{target_info["email"]}}</p>
-  <p>Immunity duration: {{target_info["immunity_duration"]}} </p>
-</div>
+  <div class="card">
+    <h3 class="card-title">Target profile</h3>
+    <div class="target-inner">
+    <div><strong>Name:</strong> {{target_info["name"]}}</div>
+    <div><strong>Email:</strong> {{target_info["email"]}}</div>
+    <div><strong>Immunity left:</strong>  {{target_info["immunity_duration"]}} minutes</div>
+      <div style="margin:5px 5px">
+      {% if all_stats["is_immunity_on"] %}
+        <span class="badge badge-success">Immunity Active</span>
+      {% else %}
+        <span class="badge badge-secondary">Immunity Disabled</span>
+      {% endif %}
+    </div>
+    </div>
+  </div>
 
 
-<div>
-  <h3>ID</h3>
-  <h4>id: {{user_info["id"]}}</h4>
-</div>
-
-
-<div>
-  <div>
-   <h2>Submit_code</h2>
+<div class='card'>
+   <div class="card-title">Submit Code</div>
    <form onsubmit="return submitEliminationCode();">
-   <div class="form-group">
-   <input type=textarea name=code id=elimination-code>
-   <input type=submit value="Submit code" class="btn btn-primary">
+   <div class="form-group" style="text-align:center">
+   <input class="code-textarea" type=textarea name=code id=elimination-code>
+   {% if is_paused %}
+   <input class="code-submit" type=submit value="Submit" class="btn btn-primary">
+   {% else %}
+   <input class="code-submit-disabled" disabled type=submit value="Submit" class="btn btn-primary">
+   <p>The game is currently paused</p>
+   {% endif %}
+
    </div>
    </form>
-  </div>
 </div>
 
-<div>
+<div class='card'>
   <div>
-   <h2>Submit special code</h2>
+   <div class="card-title">Submit Ability Code</div>
    <form onsubmit="return submitAbilityCode();">
-   <div class="form-group">
-   <input type=textarea name=code id=ability-code>
-   <input type=submit value="Submit code" class="btn btn-primary">
+   <div class="form-group" style="text-align:center">
+   <input class="code-textarea" type=textarea name=code id=ability-code>
+   <input class="code-submit" type=submit value="activate" class="btn btn-primary">
    </div>
    </form>
   </div>
 </div>
-
-<div>Game Status</div>
-<div>Is immunity on? {{is_immunity_on}} </div>
-<di> Is paused? {{is_paused}} </div>
-
 <script>
 
   function submitEliminationCode(){
