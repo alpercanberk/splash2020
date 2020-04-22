@@ -169,7 +169,11 @@ def is_immunity_on():
     return immunity.serialize()
 
 def get_all_stats():
-    return Stats.query.first().serialize()
+	print(Stats.query.first().serialize())
+	print("\n\n\n")
+	print(eval(Stats.query.first().serialize()))
+	print("\n\n\n")
+	return eval(Stats.query.first().serialize())
 
 def grant_immunity(email, minutes):
     user_found = User.query.filter_by(email=email).filter_by(time_eliminated="").first()
@@ -257,6 +261,7 @@ def grant_immunity_endpoint():
 
 @app.route('/')
 def index():
+    is_eliminated = False
     if "user_info" in flask.session.keys():
         if(is_admin()):
             all_users = get_table(User)
@@ -274,20 +279,21 @@ def index():
         else:
             user_found = User.query.filter_by(email=flask.session["user_info"]["email"]).first()
             if user_found is not None:
-                if user_found.serialize()["time_eliminated"] == "":
+                if(not user_found.serialize()["time_eliminated"] == ""):
+                    is_eliminated = True
+                if(not is_eliminated):
                     current_match_of_user = Match.query.filter_by(hunter_email=flask.session["user_info"]["email"]).filter_by(time_ended="").first().serialize()
                     target_info = User.query.filter_by(email=current_match_of_user["target_email"]).first()
-                    return render_template('home.html',
-                    user_info=user_found.serialize(),
-                    target_info=target_info.serialize(),
-                    basic_stats = (get_basic_stats()),
-                    logged_in=True,
-                    is_paused=(is_paused()),
-                    is_immunity_on=(is_immunity_on()),
-                    all_stats = (get_all_stats())
-                    )
-                else:
-                    return render_template('eliminated.html', logged_in=True)
+                return render_template('home.html',
+                user_info=user_found.serialize(),
+                # target_info=target_info.serialize(),
+                basic_stats = (get_basic_stats()),
+                logged_in=True,
+                is_paused=(is_paused()),
+                is_immunity_on=(is_immunity_on()),
+                all_stats = (get_all_stats()),
+                is_eliminated = ( not user_found.serialize()["time_eliminated"] == "")
+                )
             else:
                 return render_template('not_logged.html',
                     basic_stats = (get_basic_stats()),
@@ -532,8 +538,9 @@ def activate24():
 
         all_matches = Match.query.all()
         for match in all_matches:
-            match.time_ended = time_now()
-            match.reason = "24-R"
+        	if(not match.time_ended):
+	            match.time_ended = time_now()
+	            match.reason = "24-R"
 
         #find a more efficient way to do this, I can't pass custom functions in to filter :( something such as:
         # users_without_elim = User.query.filter(not within_24_hours(time_now(), User.time_of_last_elim)).all()
@@ -580,6 +587,15 @@ def leaderboard():
 @app.route('/all_stats')
 def all_stats():
     return str(get_all_stats())
+
+
+@app.route('/statistics')
+def statistics():
+    return render_template("stats.html", stats=get_all_stats())
+
+@app.route('/announcements')
+def announcements():
+    return render_template("announcements.html", announcements=get_table(Announcements))
 
 if __name__ == '__main__':
     # get_all_stats()

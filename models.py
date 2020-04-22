@@ -148,7 +148,28 @@ class Stats(db.Model):
         return '< stats >'
 
     def serialize(self):
-        return eval(self.stats.replace("'","\""))
+        return self.stats.replace("'","\"")
+
+class Announcements(db.Model):
+    __tablename__ = 'announcements'
+
+    id = db.Column(db.Integer, primary_key=True)
+    announcement_title = db.Column(db.String())
+    announcement_content = db.Column(db.String())
+
+    def __init__(self):
+        self.announcement_title = ""
+        self.announcement_content = ""
+
+    def __repr__(self):
+        return '< announcement >'
+
+    def serialize(self):
+        return {
+        "title":self.announcement_title,
+        "content":self.announcement_content
+        }
+
 
 
 class Code(db.Model):

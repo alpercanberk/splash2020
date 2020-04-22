@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<!-- Stats.query.first().stats = str({
+        "n_users":n_users,
+        "n_matches":n_matches,
+        "n_users_alive":n_users_alive,
+        "n_matches_ongoing":n_matches_ongoing,
+        "leaderboard":leaderboard,
+        "number_of_codes_in_game":number_of_codes_in_game,
+        "number_of_codes_activated":number_of_codes_activated,
+        "code_leaderboard":code_leaderboard,
+        # "qualified_board":qualified_board,
+        "immunity_board":immunity_board,
+        "is_paused": (is_paused()),
+        "is_immunity_on":(is_immunity_on()),
+        "recent_elims":recent_elims
+        })
+ -->
+<h1 class="title"> STATISTICS </H1>
+
+<div class="card">
+     <span class="stat"><span class="stat-number">{{ stats["n_users_alive"] }}</span> users alive out of <span class="stat-number">{{ stats["n_users"] }}</span></span>
+</div>
+
+<div class="card">
+	<span class="stat"><span class="stat-number">{{stats["recent_elims"]}}</span> users eliminated in the past 24 hours</span>
+</div>
+
+<div class="leaderboard">
+  <h1>Leaderboard</h1>
+  <div>
+  <ol class="leaderboard-list">
+    {% for user in stats["leaderboard"] %}
+    <li class="leaderboard-item">{{user["name"]}} - {{user["number_of_elims"]}} Eliminations</li>
+    {% endfor %}
+  </ol>
+  </div>
+</div>
+
+</div>
+
+<div class="card">
+	<span class="stat"><span class="stat-number">{{ stats["number_of_codes_activated"] }}</span> out of <span class="stat-number">{{ stats["number_of_codes_in_game"] }}</span> codes in game</span>
+</div>
+
+<!-- IMPLEMENT CODE LEADERBOARD IN THE FUTURE
+ -->
+{% endblock %}

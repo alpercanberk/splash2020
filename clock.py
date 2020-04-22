@@ -70,6 +70,17 @@ def get_all_stats():
 
     immunity_board = [user.serialize() for user in User.query.filter(User.immunity_duration != 0).all()]
 
+    fmt = "%Y-%m-%d %H:%M:%S"
+
+    recent_elims = 0
+    for elim in Match.query.all():
+        if(within_24_hours(elim.serialize()["time_ended"], datetime.now().strftime(fmt))):
+            recent_elims += 1
+
+    print(">>>>>>")
+    print(recent_elims)
+    print(">>>>>>")
+
     Stats.query.first().stats = str({
         "n_users":n_users,
         "n_matches":n_matches,
@@ -82,7 +93,8 @@ def get_all_stats():
         # "qualified_board":qualified_board,
         "immunity_board":immunity_board,
         "is_paused": (is_paused()),
-        "is_immunity_on":(is_immunity_on())
+        "is_immunity_on":(is_immunity_on()),
+        "recent_elims":recent_elims
         })
 
 

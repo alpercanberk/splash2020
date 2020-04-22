@@ -1,80 +1,98 @@
-{% extends 'base.html' %}
+{% extends 'base.html' %} 
 {% block content %}
 
-<p> Admin page </p>
+<h1 class="title"> Admin page </h1>
 
+<div class="card">
 <div>Num users: {{basic_stats[0]}}</div>
 <div>Num matches: {{basic_stats[1]}}</div>
 <div>Num users alive: {{basic_stats[2]}}</div>
 <div>Num matches ongoing: {{basic_stats[3]}}</div>
+</div>
 
-
-
-<table style="width:95%" class="table">
-  <tr>
-    <th>ID</th>
-    <th>Name</th>
-    <th>Email</th>
-    <th>Number of Elims</th>
-    <th>Time of Last Elim</th>
-    <th>Time Eliminated</th>
-    <th>Immunity duration</th>
-  </tr>
-  {% for user in user_table %}
+<div class="button-container">
+<button class="btn btn-light" onclick="toggleShow('user_table')">Toggle User Table</button>
+</div>
+<div class="card" id="user_table">
+  <table style="width:95%" class="table">
     <tr>
-      <td>{{user["id"]}}</td>
-      <td>{{user["name"]}}</td>
-      <td>{{user["email"]}}</td>
-      <td>{{user["number_of_elims"]}}</td>
-      <td>{{user["time_of_last_elim"]}}</td>
-      <td>{{user["time_eliminated"]}}</td>
-      <td>{{user["immunity_duration"]}}</td>
+      <th>ID</th>
+      <th>Name</th>
+      <th>Email</th>
+      <th>Number of Elims</th>
+      <th>Time of Last Elim</th>
+      <th>Time Eliminated</th>
+      <th>Immunity duration</th>
     </tr>
-  {% endfor %}
-</table>
+    {% for user in user_table %}
+      <tr>
+        <td>{{user["id"]}}</td>
+        <td>{{user["name"]}}</td>
+        <td>{{user["email"]}}</td>
+        <td>{{user["number_of_elims"]}}</td>
+        <td>{{user["time_of_last_elim"]}}</td>
+        <td>{{user["time_eliminated"]}}</td>
+        <td>{{user["immunity_duration"]}}</td>
+      </tr>
+    {% endfor %}
+  </table>
+</div>
 
-<table style="width:95%" class="table">
-  <tr>
-    <th>Hunter</th>
-    <th>Target</th>
-    <th>Time Created</th>
-    <th>Time Ended</th>
-    <th>Reason Ended</th>
-  </tr>
-  {% for match in match_table %}
+<div class="button-container">
+<button class="btn btn-light" onclick="toggleShow('elim_table')"> Toggle Elim Table </button>
+</div>
+
+<div class="card" id = "elim_table">
+  <table style="width:95%" class="table">
     <tr>
-      <td>{{match["hunter_email"]}}</td>
-      <td>{{match["target_email"]}}</td>
-      <td>{{match["time_created"]}}</td>
-      <td>{{match["time_ended"]}}</td>
-      <td>{{match["reason"]}}</td>
+      <th>Hunter</th>
+      <th>Target</th>
+      <th>Time Created</th>
+      <th>Time Ended</th>
+      <th>Reason Ended</th>
     </tr>
-  {% endfor %}
-</table>
+    {% for match in match_table %}
+      <tr>
+        <td>{{match["hunter_email"]}}</td>
+        <td>{{match["target_email"]}}</td>
+        <td>{{match["time_created"]}}</td>
+        <td>{{match["time_ended"]}}</td>
+        <td>{{match["reason"]}}</td>
+      </tr>
+    {% endfor %}
+  </table>
+</div>
 
-<table style="width:95%" class="table">
-  <tr>
-    <th>Code</th>
-    <th>Type</th>
-    <th>Duration</th>
-    <th>Used at</th>
-    <th>Used by</th>
-    <th>Used on</th>
-  </tr>
-  {% for code in codes_table %}
+
+<div class="button-container">
+<button class="btn btn-light" onclick="toggleShow('code_table')"> Toggle Code Table </button>
+</div>
+
+<div class="card" id="code_table">
+  <table style="width:95%" class="table">
     <tr>
-      <td>{{code["code"]}}</td>
-      <td>{{code["type"]}}</td>
-      <td>{{code["duration"]}}</td>
-      <td>{{code["used_at"]}}</td>
-      <td>{{code["used_by"]}}</td>
-      <td>{{code["used_on"]}}</td>
+      <th>Code</th>
+      <th>Type</th>
+      <th>Duration</th>
+      <th>Used at</th>
+      <th>Used by</th>
+      <th>Used on</th>
     </tr>
-  {% endfor %}
-</table>
+    {% for code in codes_table %}
+      <tr>
+        <td>{{code["code"]}}</td>
+        <td>{{code["type"]}}</td>
+        <td>{{code["duration"]}}</td>
+        <td>{{code["used_at"]}}</td>
+        <td>{{code["used_by"]}}</td>
+        <td>{{code["used_on"]}}</td>
+      </tr>
+    {% endfor %}
+  </table>
+</div>
 
 
-<div>
+<div class="card">
  <h2>Add a user</h2>
  <form class="add-form" id="add-form" onsubmit="return submitAdd();">
  <label> email </label>
@@ -85,7 +103,7 @@
 </form>
 </div>
 
-<div>
+<div class="card">
  <h2>Revive a user</h2>
  <form class="revive-form" id="revive-form" onsubmit="return submitRevive();">
  <label> email </label>
@@ -94,7 +112,7 @@
 </form>
 </div>
 
-<div>
+<div class="card">
  <h2>Eliminate a user</h2>
  <form class="eliminate-form" id="eliminate-form" onsubmit="return submitEliminate();">
    <input type=textarea name=email id="eliminate-textarea">
@@ -105,36 +123,48 @@
    <input type=submit value=Eliminate class="btn btn-danger">
 </form>
 </div>
-
-<div>
+ 
+<div class="card">
  <h2>Grant immunity to a user</h2>
  <form class="immunity-form" id="immunity-form" onsubmit="return submitImmunity();">
+   <label>User Email</label>
    <input type=textarea name=email id="immunity-email">
+   <label>Duration</label>
    <input type=textarea name=duration id="immunity-duration">
    <input type=submit value="Grant immunity" class="btn btn-secondary">
 </form>
 </div>
 
-<div>
+<div class="card">
  <h2>Edit a user</h2>
  <form class="edit-form" id="edit-form" onsubmit="return submitEdit();">
-   <div>previous:
-   <label> email </label>
-   <input type=textarea name=previous_email>
-   <label> name </label>
-   <input type=textarea name=previous_name>
+   <div>
+   <strong> Previous </strong>
+   <div>
+     <label> User Email </label>
+     <input type=textarea name=previous_email>
    </div>
-   <div>new:
-   <label> email </label>
-   <input type=textarea name=new_email>
-   <label> name </label>
-   <input type=textarea name=new_name>
+   <div>
+    <label> User Name </label>
+    <input type=textarea name=previous_name>
+   </div>
+   </div>
+   <div>
+   <strong> New </strong>
+   <div>
+     <label> User Email </label>
+     <input type=textarea name=new_email>
+   </div>
+   <div>
+    <label> User Name </label>
+    <input type=textarea name=new_name>
+   </div>
    </div>
    <input type=submit value=Edit class="btn btn-primary">
  </form>
 </div>
 
-<div>
+<div class="card">
  <h2>Upload a new game</h2>
  <form action="/upload" onsubmit="return confirm('Do you really want to submit the form?');" method=post enctype=multipart/form-data><p>
  <div class="form-group">
@@ -144,19 +174,24 @@
  </form>
 </div>
 
+<div class="card">
 {% if not is_paused %}
-<button class='btn btn-primary' onclick="pauseGame();"> Pause Game </div>
+<button class='btn btn-primary' onclick="pauseGame();"> Pause Game </button>
 {% else %}
-<button class='btn btn-primary' onclick="pauseGame();"> Continue Game </div>
+<button class='btn btn-primary' onclick="pauseGame();"> Continue Game </button>
 {% endif %}
 
+<div style="margin-top:20px">
 <form action="/shuffle_game" method="post">
 <input type="submit" value="Shuffle Game" class='btn btn-primary' onclick="shuffleGame()">
 </form>
+</div>
 
 <form action="/activate_24_hour_round" method="post">
 <input type="submit" value="Complete 24 Hour Round" class='btn btn-primary' onclick="activate24();">
 </form>
+
+</div>
 
 <script>
 
@@ -269,6 +304,14 @@
     return false;
   }
 
+  function toggleShow(tableId) {
+    var x = document.getElementById(tableId);
+    if (x.style.display === "none") {
+      x.style.display = "block";
+    } else {
+      x.style.display = "none";
+    }
+  }
 
 
 </script>

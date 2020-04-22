@@ -32,8 +32,8 @@
 
 <div class="leaderboard">
   <h1>Leaderboard</h1>
-  <div style="width:70%">
-  <ol>
+  <div>
+  <ol class="leaderboard-list">
     {% for user in all_stats["leaderboard"] %}
     <li class="leaderboard-item">{{user["name"]}} - {{user["number_of_elims"]}} Eliminations</li>
     {% endfor %}

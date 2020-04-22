@@ -60,10 +60,64 @@
 .leaderboard{
   margin:15px;
   text-align:center;
+  border:1px solid black !important;
+  border-radius:5px;
+  background-color:white;
+  padding:20px;
 }
 
 .leaderboard-item{
+  background-color:black;
+  color:white;
+  font-size:30px;
+  border:1px solid black !important;
+  width:100%;
+  margin:5px;
+  border-radius:5px;
+}
 
+.member{
+  font-size:20px;
+  border-radius:5px;
+  border:1px solid black;
+  padding:5px 20px;
+  margin:10px;
+  background-color:black;
+  color:white;
+}
+
+ol {list-style: none; counter-reset: li}
+
+li.leaderboard-item::before {content: counter(li)"."; 
+
+  color: #257BFF;
+  display: inline-block; 
+  width: 1em;
+
+  margin-left: -1em}
+
+li.leaderboard-item {counter-increment: li}
+
+
+.leaderboard-list{
+  width:100% !important;
+  padding-left:0;
+  padding-right:5px;
+}
+
+.card.stat-card{
+  margin:5px 200px;
+}
+
+.stat{
+  text-align:center;
+  font-size:30px;
+  font-family:Bungee;
+}
+
+.stat-number{
+  color:#257BFF;
+  font-size:40px;
 }
 
 .index-player-count{
@@ -74,6 +128,22 @@
   color:#257BFF;
 }
 
+.card.hof-item{
+  margin:10px 20px !important;
+}
+
+li.hof-li{
+  font-size:40px !important;
+  list-style: none;
+}
+
+.center {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: 90%;
+}
+
 .title{
   text-align:center;
   font-size:50px;
@@ -81,11 +151,17 @@
   font-family:'Bungee'
 }
 
+.button-container{
+  margin:10px;
+  text-align:center;
+}
+
 .card{
   border-radius:5px !important;
   background-color:white;
   margin:10px !important;
   padding:35px 20px;
+  color:black;
 }
 
 #rank-display{
@@ -124,6 +200,14 @@
   color:white;
   text-align:center;
   font-size:20px;
+  margin: 30px 0;
+}
+
+.user-icon{
+  width:30px;
+  height:30px;
+  margin:auto;
+  margin-bottom:20px;
 }
 
 .code-textarea{
@@ -163,6 +247,12 @@
 #index-logo{
   letter-spacing:3px;
   font-size:72px;
+}
+
+.table{
+  background-color:white;
+  text-align:center;
+  border-radius:5px;
 }
 
 #index-content{
