@@ -93,22 +93,22 @@ def get_leaderboard(n_users):
     leaderboard = users_ref.order_by("number_of_elims",direction=firestore.Query.DESCENDING).limit(n_users).get()
     return [user.dict() for user in leaderboard]
 
-#
-# def compute_ranks():
-#
-#     all_users = User.query.order_by(User.number_of_elims.desc()).all()
-#     for i in range(0, len(all_users)):
-#         all_users[i].rank = i+1
+def compute_ranks():
+
+    all_users = users_ref.order_by("number_of_elims",direction=firestore.Query.DESCENDING).get()
+    for i in range(0, len(all_users)):
+        all_users[i]
 
 def eliminate_user(email, increment_elimination_count=False):
 
     print("Eliminate user function activated")
 
-    user_being_eliminated = users_ref.where("email","==",email).get()
+    user_being_eliminated = users_ref.where("email","==",email).get()[0].to_dict()
 
     #check if the user exists
 
     if(user_being_eliminated is not None):
+
         user_active_match_hunter = matches_ref.where("hunter_email","==",email).where("time_ended","==","").get()[0].to_dict()
         target_of_user_email = user_active_match_hunter["target_email"]
         target_of_user = users_ref.where("email","==",target_of_user_email).get()[0].to_dict()
@@ -133,25 +133,29 @@ def eliminate_user(email, increment_elimination_count=False):
             print("Didn't increment elimination count")
 
         # #complete both hunter and target elims with the given reason
-        user_active_match_hunter["time_ended"]=time_now()
-        # user_active_match_hunter.time_ended = time_now()
-        # user_active_match_hunter.reason = "Hunter died"
-        # user_active_match_target.time_ended = time_now()
-        # if increment_elimination_count:
-        #     user_active_match_target.reason = "Elimination"
-        # else:
-        #     user_active_match_target.reason = "DQ"
-        #
+        user_active_match_hunter["time_ended"] = time_now()
+        user_active_match_hunter["reason"] = "Hunter died"
+
+        user_active_match_target["time_ended"]=time_now()
+
+        if increment_elimination_count:
+            user_active_match_target["reason"] = "Elimination"
+        else:
+            user_active_match_target["reason"] = "DQ"
+
+        #update the database with the most recent changes
+        matches_ref.document(user_active_match_hunter["id"]).update(user_active_match_hunter)
+        matches_ref.document(user_active_match_target["id"]).update(user_active_match_target)
+
         # #pair up hunter and the target and create a new elim
-        # create_new_match(hunter_of_user_email, target_of_user_email)
-        # print("New match created!")
-        #
+        create_new_match(hunter_of_user_email, target_of_user_email)
+        print("New match created!")
+
         # #kill the user
-        # user_being_eliminated.time_eliminated = time_now()
+        user_being_eliminated["time_eliminated"] = time_now()
+        users_ref.document(user_being_eliminated["user_id"]).update(user_being_eliminated)
         #
-        # compute_ranks()
-        #
-        # db.session.commit()
+        #*** compute_ranks()
 
         return "Elimination successful"
     else:
@@ -225,15 +229,15 @@ def insert_into_chain(email, reason):
 #     else:
 #         return False
 
-# @app.route('/eliminate_user_admin', methods=["POST"])
-# def eliminate_user_admin_route():
-#     if(is_admin()):
-#         print("Eliminating a user...")
-#         data = request.json
-#         return eliminate_user(data["email"], data["increment_elimination_count"])
-#     else:
-#         return "Damn you're smart, come to programming club."
-#
+@app.route('/eliminate_user_admin', methods=["POST"])
+def eliminate_user_admin_route():
+    if(is_admin()):
+        print("Eliminating a user...")
+        data = request.json
+        return eliminate_user(data["email"], data["increment_elimination_count"])
+    else:
+        return "Damn you're smart, come to programming club."
+
 @app.route('/eliminate_user', methods=["POST"])
 def eliminate_user_route():
     #if someone tries to fuck up the program, their identity will be known
@@ -241,7 +245,6 @@ def eliminate_user_route():
     code = request.json["code"]
 
     current_match = matches_ref.where("hunter_email","==",flask.session["user_info"]["email"]).where("time_ended","==","")
-
 
     if current_match is not None:
         current_target_email = current_match.get()[0].to_dict()["target_email"]
@@ -272,9 +275,6 @@ def eliminate_user_route():
 #             return "Oops, something went wrong. Probably entered invalid email"
 #     else:
 #         return "No access."
-# @app.route('/f')
-# def dummy():
-#     return render_template('fake_base.html')
 
 @app.route('/')
 def index():
