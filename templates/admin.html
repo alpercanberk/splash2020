@@ -1,4 +1,4 @@
-{% extends 'base.html' %} 
+{% extends 'base.html' %}
 {% block content %}
 
 <h1 class="title"> Admin page </h1>
@@ -26,7 +26,7 @@
     </tr>
     {% for user in user_table %}
       <tr>
-        <td>{{user["id"]}}</td>
+        <td>{{user["user_id"]}}</td>
         <td>{{user["name"]}}</td>
         <td>{{user["email"]}}</td>
         <td>{{user["number_of_elims"]}}</td>
@@ -123,7 +123,7 @@
    <input type=submit value=Eliminate class="btn btn-danger">
 </form>
 </div>
- 
+
 <div class="card">
  <h2>Grant immunity to a user</h2>
  <form class="immunity-form" id="immunity-form" onsubmit="return submitImmunity();">

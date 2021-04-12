@@ -17,6 +17,10 @@ def gtd(generator):
 def generate_user_id():
     return ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(8))
 
+def generate_random_id():
+    return ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(10))
+
+
 fmt = "%Y-%m-%d %H:%M:%S"
 
 def time_now():

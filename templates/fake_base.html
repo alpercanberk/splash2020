@@ -7,43 +7,38 @@
       <div class="col-md-6 col-xs-12">
         <div class="card">
           <h3 class="card-title">your profile</h3>
-          <h4 class="user-code">CODE: <span style="font-family:Roboto">{{user_info["user_id"]}}</span></h4>
+          <h4 class="user-code">CODE: <span style="font-family:Roboto">2XE1GUDM</span></h4>
           <div class="row">
           <div class="col-8">
-          <div style="font-size:23px;font-weight:bold">{{user_info["name"]}}</div>
-          <div><strong>Email: </strong>{{user_info["email"]}}</div>
-          <div><strong>Number of elims: </strong>{{user_info["number_of_elims"]}}</div>
-          <div><strong>Immunity left: </strong>{{user_info["immunity_duration"]}} minutes</div>
-          {% if not is_eliminated %}
+          <div style="font-size:23px;font-weight:bold">Alper Canberk</div>
+          <div><strong>Email: </strong>acanberk21@lawrenceville.org</div>
+          <div><strong>Number of elims: </strong>2</div>
+          <div><strong>Immunity left: </strong>0 minutes</div>
+          <!-- {% if not is_eliminated %} -->
             <span class="badge badge-success">Alive</span>
-          {% else %}
+          <!-- {% else %}
             <span class="badge badge-danger">Eliminated</span>
-          {% endif %}
+          {% endif %} -->
           </div>
           <div class="col-4" style="padding:5px;padding-top:5px;padding-right:18px;max-width:300px;">
             <div id="rank-display">
             <div style="font-size:22px">RANK</div>
-            <div>#{{user_info["rank"]}}</div>
+            <div>#28</div>
             </div>
           </div>
           </div>
         </div>
       </div>
 
-      {% if not is_eliminated %}
         <div class="col-md-6 col-xs-12">
           <div class="card">
           <h3 class="card-title">Target profile</h3>
             <div class="target-inner">
-              <div><strong>Name:</strong> {{target_info["name"]}}</div>
-              <div><strong>Email:</strong> {{target_info["email"]}}</div>
-              <div><strong>Immunity left:</strong>  {{target_info["immunity_duration"]}} minutes</div>
+              <div><strong>Name:</strong> Brian Tan </div>
+              <div><strong>Email:</strong> btan21@lawrenceville.org </div>
+              <div><strong>Immunity left:</strong>  0 minutes</div>
                 <div style="margin:5px 5px">
-                {% if all_stats["is_immunity_on"] %}
                   <span class="badge badge-success">Immunity abilities active</span>
-                {% else %}
-                  <span class="badge badge-secondary">Immunity abilities disabled</span>
-                {% endif %}
               </div>
             </div>
           </div>
@@ -58,18 +53,17 @@
              <form onsubmit="return submitEliminationCode();">
              <div class="form-group" style="text-align:center">
              <input class="code-textarea" type=textarea name=code id=elimination-code>
-             {% if not is_paused %}
+             <!-- {% if not is_paused %} -->
              <input class="code-submit" type=submit value="Submit" class="btn btn-primary">
-             {% else %}
+             <!-- {% else %}
              <input class="code-submit-disabled" disabled type=submit value="Submit" class="btn btn-primary">
              <p>The game is currently paused</p>
-             {% endif %}
+             {% endif %} -->
 
              </div>
              </form>
           </div>
         </div>
-      {% endif %}
 
       <div class="col-lg-6 col-md-12">
         <div class='card'>

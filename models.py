@@ -7,6 +7,32 @@ from datetime import datetime
 from pytz import timezone
 from utils import generate_user_id, time_now
 
+
+
+def user_model(name, email, user_id):
+    return {
+        "name":name,
+        "email":email,
+        "user_id":user_id,
+
+        "number_of_elims":0,
+        "time_of_last_elim":"",
+        "time_eliminated":"",
+
+        "is_immune":0,
+        "time_immunity_activated":"",
+        "immunity_duration":"",
+
+        "time_created":str(time.now()),
+
+        "num_revives":0,
+
+        "codes_found":0,
+
+        "rank":0
+    }
+
+
 class User(db.Model):
     __tablename__ = 'users'
 
