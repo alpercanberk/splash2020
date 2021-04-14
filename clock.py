@@ -18,6 +18,7 @@ from lists import *
 from flask_sslify import SSLify
 from flask_sqlalchemy import SQLAlchemy
 
+from firebase_admin import credentials, firestore, initialize_app
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ["DATABASE_URL"]
@@ -25,9 +26,18 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 #register blueprints for routes
 app.register_blueprint(routes)
 #setup the database
-db = SQLAlchemy(app)
 #setup secret key for oauth2
 app.secret_key = os.environ['SECRET_KEY']
+
+cred = credentials.Certificate('key.json')
+default_app = initialize_app(cred)
+db = firestore.client()
+
+
+users_ref = db.collection('users')
+pause_ref = db.collection('pause')
+matches_ref = db.collection('matches')
+immunity_ref = db.collection('immunity')
 
 from models import *
 
@@ -38,7 +48,7 @@ def is_paused():
 def is_immunity_on():
     immunity = Immunity.query.first()
     return immunity.serialize()
-    
+
 def get_leaderboard(n_users):
     leaderboard = User.query.order_by(User.number_of_elims.desc()).limit(n_users).all()
     return [user.serialize() for user in leaderboard]

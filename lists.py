@@ -23,7 +23,7 @@ class Lists():
     ]
     admins = [
         "acanberk21@lawrenceville.org",
-        "ewang20@lawrenceville.org",
+        "ntorres22@lawrenceville.org",
         "syoon19@lawrenceville.org"
     ]
     team = [
