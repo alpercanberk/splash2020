@@ -21,8 +21,6 @@ from flask_sqlalchemy import SQLAlchemy
 from firebase_admin import credentials, firestore, initialize_app
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ["DATABASE_URL"]
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 #register blueprints for routes
 app.register_blueprint(routes)
 #setup the database
