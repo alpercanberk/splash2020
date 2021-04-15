@@ -587,12 +587,16 @@ def upload():
 def activate24():
     if is_admin():
 
-        for match in matches_ref.stream(0):
-            match = match.to_dict()
-        	if(match["time_ended"] == ""):
-	            match["time_ended"] = time_now()
-	            match["reason"] = "24-R"
-            matches_ref.document(match["id"]).update(match)
+        for match in matches_ref.stream():
+            match_dict = match_dict.to_dict()
+            if match_dict["time_ended"] == "":
+                match_dict["time_ended"] = time_now()
+                match_dict["reason"] = "24-R"
+                match_dict.document(match["id"]).update(match)
+
+
+
+
 
         #find a more efficient way to do this, I can't pass custom functions in to filter :( something such as:
         # users_without_elim = User.query.filter(not within_24_hours(time_now(), User.time_of_last_elim)).all()

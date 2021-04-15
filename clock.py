@@ -38,30 +38,29 @@ users_ref = db.collection('users')
 pause_ref = db.collection('pause')
 matches_ref = db.collection('matches')
 immunity_ref = db.collection('immunity')
-
-from models import *
+codes_ref = db.collection('codes')
 
 def is_paused():
-    pause = Pause.query.first()
-    return pause.serialize()
+    is_paused = pause_ref.document("0").get().to_dict()["is_paused"]
+    return is_paused
 
 def is_immunity_on():
-    immunity = Immunity.query.first()
-    return immunity.serialize()
+    is_paused = immunity_ref.document("0").get().to_dict()["is_paused"]
+    return is_paused
 
 def get_leaderboard(n_users):
-    leaderboard = User.query.order_by(User.number_of_elims.desc()).limit(n_users).all()
-    return [user.serialize() for user in leaderboard]
+    leaderboard = users_ref.order_by("number_of_elims",direction=firestore.Query.DESCENDING).limit(n_users).get()
+    return [user.dict() for user in leaderboard]
 
 def get_table(table):
-    all_elements = table.query.all()
-    return [e.serialize() for e in all_elements]
+    return [doc.to_dict() for doc in table.stream()]
 
 def get_basic_stats():
-    n_users = len(get_table(User))
-    n_matches = len(get_table(Match))
-    n_users_alive = len(User.query.filter_by(time_eliminated="").all())
-    n_matches_ongoing = len(Match.query.filter_by(time_ended="").all())
+
+    n_users = len(get_table(users_ref))
+    n_matches = len(get_table(matches_ref))
+    n_users_alive = len(users_ref.where("time_eliminated","==","").get())
+    n_matches_ongoing = len(matches_ref.where("time_ended","==", "").get())
 
     return n_users, n_matches, n_users_alive, n_matches_ongoing
 
@@ -70,10 +69,10 @@ def get_all_stats():
 
     leaderboard = get_leaderboard(10)
 
-    number_of_codes_in_game =len(Code.query.all())
-    number_of_codes_activated = len(Code.query.filter_by(used_at=None).all())
+    number_of_codes_in_game =len(codes_ref.get())
+    number_of_codes_activated = len(codes_ref.where("used_at","==","").get())
 
-    code_leaderboard = User.query.order_by(User.codes_found.desc()).limit(3).all()
+    code_leaderboard = users_ref.order_by(User.codes_found.desc()).limit(3).all()
     code_leaderboard = [user.serialize() for user in code_leaderboard]
 
     # qualified_board = [user.serialize() for user in User.query.filter("-Q*" in User.name).all()]
