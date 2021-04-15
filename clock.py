@@ -39,18 +39,19 @@ pause_ref = db.collection('pause')
 matches_ref = db.collection('matches')
 immunity_ref = db.collection('immunity')
 codes_ref = db.collection('codes')
+stats_ref = db.collection('stats')
 
 def is_paused():
     is_paused = pause_ref.document("0").get().to_dict()["is_paused"]
     return is_paused
 
 def is_immunity_on():
-    is_paused = immunity_ref.document("0").get().to_dict()["is_paused"]
-    return is_paused
+    is_immunity_on = immunity_ref.document("0").get().to_dict()["is_immunity_on"]
+    return is_immunity_on
 
 def get_leaderboard(n_users):
     leaderboard = users_ref.order_by("number_of_elims",direction=firestore.Query.DESCENDING).limit(n_users).get()
-    return [user.dict() for user in leaderboard]
+    return [user.to_dict() for user in leaderboard]
 
 def get_table(table):
     return [doc.to_dict() for doc in table.stream()]
@@ -69,28 +70,28 @@ def get_all_stats():
 
     leaderboard = get_leaderboard(10)
 
-    number_of_codes_in_game =len(codes_ref.get())
+    number_of_codes_in_game = len(codes_ref.get())
     number_of_codes_activated = len(codes_ref.where("used_at","==","").get())
 
-    code_leaderboard = users_ref.order_by(User.codes_found.desc()).limit(3).all()
-    code_leaderboard = [user.serialize() for user in code_leaderboard]
+    code_leaderboard = [user.to_dict() for user in users_ref.order_by("codes_found", direction=firestore.Query.DESCENDING).limit(3).get()]
 
     # qualified_board = [user.serialize() for user in User.query.filter("-Q*" in User.name).all()]
 
-    immunity_board = [user.serialize() for user in User.query.filter(User.immunity_duration != 0).all()]
+    immunity_board = [user.to_dict() for user in users_ref.where("immunity_duration","!=", 0).get()]
 
     fmt = "%Y-%m-%d %H:%M:%S"
 
     recent_elims = 0
-    for elim in Match.query.all():
-        if(within_24_hours(elim.serialize()["time_ended"], datetime.now().strftime(fmt))):
+    for elim in matches_ref.stream():
+        if(within_24_hours(elim.to_dict()["time_ended"], datetime.now().strftime(fmt))):
             recent_elims += 1
 
     print(">>>>>>")
     print(recent_elims)
     print(">>>>>>")
 
-    Stats.query.first().stats = str({
+    stats = stats_ref.document("0").get().to_dict()
+    stats["all_stats"] = str({
         "n_users":n_users,
         "n_matches":n_matches,
         "n_users_alive":n_users_alive,
@@ -105,15 +106,17 @@ def get_all_stats():
         "is_immunity_on":(is_immunity_on()),
         "recent_elims":recent_elims
         })
+    stats_ref.document("0").update(stats)
 
 
 def wear_down_immunity():
     # print("Immunity works")
-    users_with_immunity = User.query.filter(User.immunity_duration > 0).all()
-    if(users_with_immunity is not None):
+    users_with_immunity = users_ref.where("immunity_duration", ">", 0).get()
+    if(len(users_with_immunity) > 0):
         for immune_user in users_with_immunity:
-            immune_user.immunity_duration -= 1
-        db.session.commit()
+            immune_user = immune_user.to_dict()
+            immune_user["immunity_duration"] -= 1
+            users_ref.document(immune_user["user_id"]).update(immune_user)
 
 get_all_stats()
 wear_down_immunity()
