@@ -50,7 +50,7 @@ def immunity_model():
     return {"is_immunity_on":True}
 
 def stats_model():
-    return {"stats": ""}
+    return {"all_stats": ""}
 
 def announcements_model(title, content):
     return {
@@ -58,11 +58,11 @@ def announcements_model(title, content):
         "announcement_content":content
     }
 
-def code_model():
+def code_model(code, duration):
     return {
-        "code":"",
+        "code":code,
         "type":"",
-        "duration":0,
+        "duration":duration,
         "used_at":"",
         "used_by":"",
         "used_on":""

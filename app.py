@@ -26,7 +26,6 @@ excel.init_excel(app)
 #setup secret key for oauth2
 app.secret_key = os.environ['SECRET_KEY']
 
-
 cred = credentials.Certificate('key.json')
 default_app = initialize_app(cred)
 db = firestore.client()
@@ -36,24 +35,27 @@ users_ref = db.collection('users')
 pause_ref = db.collection('pause')
 matches_ref = db.collection('matches')
 immunity_ref = db.collection('immunity')
+codes_ref = db.collection('codes')
+stats_ref = db.collection('stats')
 
 from firestore_models import *
 
-# def expire_ability(code, used_by, used_on):
-#     ability = Code.query.filter_by(code=code).first()
-#
-#     if(ability is not None):
-#         ability.used_at = time_now()
-#         ability.used_on = used_on
-#         ability.used_by = used_by
-#
-#         user = User.query.filter_by(email=used_by).first()
-#         if(user is not None):
-#             user.codes_found += 1
-#
-#         db.session.commit()
-#     else:
-#         print("Something went wrong...")
+def expire_ability(code, used_by, used_on):
+    ability = codes_ref.where("code","==",code).get()
+
+    if(len(ability) > 0):
+        ability = ability[0].get()
+        ability["used_at"] = time_now()
+        ability["used_on"] = used_on
+        ability["used_by"] = used_by
+
+        user = User.query.filter_by(email=used_by).first()
+        if(user is not None):
+            user.codes_found += 1
+
+        db.session.commit()
+    else:
+        print("Something went wrong...")
 
 def create_new_user(name, email):
     print("User creation initialized")
@@ -65,6 +67,18 @@ def create_new_user(name, email):
         return "User created"
     except Exception as e:
         return str(e)
+
+def create_new_code(code, duration):
+    print("Code creation initialized")
+    # try:
+    id = generate_user_id()
+    new_code = code_model(code, duration)
+    codes_ref.document(id).set(new_code)
+
+    return "Code created"
+    # except Exception as e:
+    #     return str(e)
+
 
 def create_new_match(hunter_email, target_email):
     id = generate_random_id()
@@ -180,14 +194,55 @@ def is_paused():
 def is_immunity_on():
     is_immunity_on = immunity_ref.document("0").get().to_dict()["is_immunity_on"]
     return is_immunity_on
-#
-# def get_all_stats():
-# 	print(Stats.query.first().serialize())
-# 	print("\n\n\n")
-# 	print(eval(Stats.query.first().serialize()))
-# 	print("\n\n\n")
-# 	return eval(Stats.query.first().serialize())
-#
+
+def set_all_stats():
+    n_users, n_matches, n_users_alive, n_matches_ongoing = get_basic_stats()
+
+    leaderboard = get_leaderboard(10)
+
+    number_of_codes_in_game = len(codes_ref.get())
+    number_of_codes_activated = len(codes_ref.where("used_at","==","").get())
+
+    code_leaderboard = [user.to_dict() for user in users_ref.order_by("codes_found", direction=firestore.Query.DESCENDING).limit(3).get()]
+
+    # qualified_board = [user.serialize() for user in User.query.filter("-Q*" in User.name).all()]
+
+    immunity_board = [user.to_dict() for user in users_ref.where("immunity_duration","!=", 0).get()]
+
+    fmt = "%Y-%m-%d %H:%M:%S"
+
+    recent_elims = 0
+    for user in users_ref.stream():
+        if(within_24_hours(user.to_dict()["time_eliminated"], datetime.now().strftime(fmt))):
+            recent_elims += 1
+
+    print(">>>>>>")
+    print(recent_elims)
+    print(">>>>>>")
+
+    stats = stats_ref.document("0").get().to_dict()
+    stats["all_stats"] = str({
+        "n_users":n_users,
+        "n_matches":n_matches,
+        "n_users_alive":n_users_alive,
+        "n_matches_ongoing":n_matches_ongoing,
+        "leaderboard":leaderboard,
+        "number_of_codes_in_game":number_of_codes_in_game,
+        "number_of_codes_activated":number_of_codes_activated,
+        "code_leaderboard":code_leaderboard,
+        # "qualified_board":qualified_board,
+        "immunity_board":immunity_board,
+        "is_paused": (is_paused()),
+        "is_immunity_on":(is_immunity_on()),
+        "recent_elims":recent_elims
+        })
+    stats_ref.document("0").update(stats)
+
+def get_all_stats():
+    # print("receiving all stats")
+    # print(stats_ref.document("0").get().to_dict()["all_stats"])
+    return eval(stats_ref.document("0").get().to_dict()["all_stats"])
+
 def grant_immunity(email, minutes):
     user_found = users_ref.where("email","==",email).where("time_eliminated","==","").get()
     if len(user_found) > 0:
@@ -296,10 +351,9 @@ def index():
             match_table = all_matches,
             basic_stats = (get_basic_stats()),
             is_paused = (is_paused()),
-            #*** codes_table = (get_table(Code)),
-            codes_table = "",
-            #*** all_stats = (get_all_stats())
-            all_stats = ""
+            is_immunity_on=(is_immunity_on()),
+            codes_table = (get_table(codes_ref)),
+            all_stats = (get_all_stats()),
             )
         else:
             user_found =  users_ref.where('email', '==', flask.session["user_info"]["email"]).get()[0].to_dict()
@@ -313,91 +367,91 @@ def index():
                 return render_template('home.html',
                     user_info=user_found,
                     target_info=target_info,
-                    # *** basic_stats = (get_basic_stats()),
-                    basic_stats = "",
+                    basic_stats = (get_basic_stats()),
                     logged_in=True,
                     is_paused=(is_paused()),
                     is_immunity_on=(is_immunity_on()),
-                    # ***all_stats = (get_all_stats()),
-                    all_stats = "",
+                    all_stats = (get_all_stats()),
                     is_eliminated = ( not user_found["time_eliminated"] == "")
                     )
             else:
                 return render_template('not_logged.html',
-                    # *** basic_stats = (get_basic_stats()),
-                    # *** all_stats = (get_all_stats()),
-                    basic_states = "",
-                    all_stats = "",
+                    basic_stats = (get_basic_stats()),
+                    all_stats = (get_all_stats()),
                     logged_in=True)
     else:
         return render_template('index.html',
-            # all_stats = (get_all_stats()),
-            all_stats = "",
+            all_stats = (get_all_stats()),
             logged_in=False)
 
-# @app.route('/edit_user', methods=['POST'])
-# def edit_user():
-#     print("Endpoint activated")
-#     if(is_admin()):
-#         print("Editing user...")
-#         data = request.json
-#
-#         previous_email = data["previous_email"]
-#         previous_name = data["previous_name"]
-#         new_email = data["new_email"]
-#         new_name = data["new_name"]
-#
-#         #change the name in matches as well
-#         user_found = User.query.filter_by(name=previous_name).filter_by(email=previous_email).first()
-#
-#         if user_found is not None:
-#
-#             #change the name in hunter matches
-#             matches_found_as_hunter = Match.query.filter_by(hunter_email=user_found.email).all()
-#             matches_found_as_target = Match.query.filter_by(target_email=user_found.email).all()
-#
-#             for match in matches_found_as_hunter:
-#                 match.hunter_email = new_email
-#
-#             for match in matches_found_as_target:
-#                 match.target_email = new_email
-#
-#             user_found.email = new_email
-#             user_found.name = new_name
-#
-#             db.session.commit()
-#             print("User edit successful")
-#             return "User edit successful"
-#         else:
-#             print("User not found")
-#             return "User not found"
-#     else:
-#         return "Access denied"
-#
-# @app.route('/ability/<code>')
-# def ability(code):
-#     if "user_info" in flask.session.keys():
-#         code = Code.query.filter_by(code=code).filter_by(used_at=None).first()
-#         if(code is not None):
-#             code_found = code.serialize()["code"]
-#             print('Someone found a code!')
-#             if(code_found[0] == "R"):
-#                 return render_template("revive_ability.html", logged_in = True)
-#             if(code_found[0] == "I"):
-#                 return render_template("immunity_ability.html", logged_in = True, duration=code.serialize()["duration"])
-#             if(code_found[0] == "Q"):
-#                 return render_template("qualify_ability.html", logged_in = True)
-#         else:
-#             print('Invalid ability code attempt by', flask.session["user_info"]["email"])
-#             return render_template("invalid_ability_code.html")
-#     else:
-#         #TODO make this page
-#         return "Log in in order to gain new ability by clicking <a href='/auth/google'>here</a>"
-#
-# @app.route('/ability/')
-# def ability_index():
-#     return render_template("invalid_ability_code.html")
-#
+@app.route('/edit_user', methods=['POST'])
+def edit_user():
+    print("Edit endpoint activated")
+    if(is_admin()):
+        print("Editing user...")
+        data = request.json
+
+        previous_email = data["previous_email"]
+        previous_name = data["previous_name"]
+        new_email = data["new_email"]
+        new_name = data["new_name"]
+
+        #change the name in matches as well
+        user_found = users_ref.where("name","==","previous_name").where("email","==",previous_email).get()
+
+        if len(user_found) > 0:
+            user_found = user_found[0].to_dict()
+
+            #change the name in hunter matches
+            matches_found_as_hunter = matches_ref.where("hunter_email","==", user_found["email"]).get()
+            matches_found_as_target = matches_ref.where("target_email","==",user_found["email"]).get()
+
+            for match in matches_found_as_hunter:
+                match["hunter_email"] = new_email
+                matches_ref.document(match["id"]).update(match)
+
+            for match in matches_found_as_target:
+                match["target_email"] = new_email
+                matches_ref.document(match["id"]).update(match)
+
+
+            user_found["email"] = new_email
+            user_found["name"] = new_name
+            users_ref.document(user_found["user_id"]).update(user_found)
+
+            print("User edit successful")
+            return "User edit successful"
+        else:
+            print("User not found")
+            return "User not found"
+    else:
+        return "Access denied"
+
+@app.route('/ability/<code>')
+def ability(code):
+    if "user_info" in flask.session.keys():
+        code = codes_ref.where("code","==",code).where("used_at","==","").get()
+        if(len(code) > 0):
+            code = code[0].to_dict()
+            code_found = code["code"]
+            print('Someone found a code!')
+            if(code_found[0] == "R"):
+                return render_template("revive_ability.html", logged_in = True)
+            if(code_found[0] == "I"):
+                return render_template("immunity_ability.html", logged_in = True, duration=code["duration"])
+            if(code_found[0] == "Q"):
+                return render_template("qualify_ability.html", logged_in = True)
+        else:
+            print('Invalid ability code attempt by', flask.session["user_info"]["email"])
+            return render_template("invalid_ability_code.html")
+    else:
+        #TODO make this page
+        return "Log in in order to gain new ability by clicking <a href='/auth/google'>here</a>"
+
+@app.route('/ability/')
+def ability_index():
+    return render_template("invalid_ability_code.html")
+
 @app.route('/pause_game', methods=['POST'])
 def pause_game():
     if is_admin():
@@ -411,6 +465,20 @@ def pause_game():
     else:
         return "Access denied"
 
+
+@app.route('/pause_immunity', methods=['POST'])
+def pause_immunity():
+    if is_admin():
+        immunity = immunity_ref.document("0").get().to_dict()
+        immunity["is_immunity_on"] = not immunity["is_immunity_on"]
+        immunity_ref.document("0").update(immunity)
+        if immunity["is_immunity_on"]:
+            return "Immunity started"
+        else:
+            return "Immunity paused"
+    else:
+        return "Access denied"
+
 @app.route('/revive_user', methods=['POST'])
 def revive_user_endpoint():
     if is_admin():
@@ -421,22 +489,22 @@ def revive_user_endpoint():
     else:
         return "Access denied"
 
-# def parse_code(link):
-#     return os.path.basename(os.path.dirname(request.json["link"] + "/"))
-#
-# @app.route('/revive_ability', methods=['POST'])
-# def revive_ability():
-#     code_from_link = parse_code(request.json["link"])
-#     if(is_logged_in() and (Code.query.filter_by(code=code_from_link).first() is not None)):
-#         if(revive_user(request.json["email"])):
-#             expire_ability(code=code_from_link, used_on=request.json["email"], used_by=flask.session["user_info"]["email"])
-#             return "Revive successful"
-#         else:
-#             return "Invalid attempt. The person you are trying to revive might still be alive or you might have made a spelling error"
-#     else:
-#         return "Access denied, try logging in."
-#
-#
+def parse_code(link):
+    return os.path.basename(os.path.dirname(request.json["link"] + "/"))
+
+@app.route('/revive_ability', methods=['POST'])
+def revive_ability():
+    code_from_link = parse_code(request.json["link"])
+    if(is_logged_in() and (len(codes_ref.query("code","==","code_from_link").get()) > 0)):
+        if(revive_user(request.json["email"])):
+            expire_ability(code=code_from_link, used_on=request.json["email"], used_by=flask.session["user_info"]["email"])
+            return "Revive successful"
+        else:
+            return "Invalid attempt. The person you are trying to revive might still be alive or you might have made a spelling error"
+    else:
+        return "Access denied, try logging in."
+
+
 # @app.route('/qualify_ability', methods=['POST'])
 # def qualify_user():
 #     code_from_link = parse_code(request.json["link"])
@@ -546,17 +614,15 @@ def upload():
             # User.query.delete()
             delete_collection(users_ref, 50)
             delete_collection(matches_ref, 50)
+            delete_collection(codes_ref, 50)
             delete_collection(pause_ref, 1)
-
-            # Match.query.delete()
-            # Pause.query.delete()
-            # ***Stats.query.delete()
-            # ***Immunity.query.delete()
+            delete_collection(immunity_ref, 1)
+            delete_collection(stats_ref, 1)
 
             #create new pause variable
             pause_ref.document("0").set(pause_model())
-            #*** db.session.add(Immunity())
-            #*** db.session.add(Stats())
+            stats_ref.document("0").set(stats_model())
+            immunity_ref.document("0").set(immunity_model())
 
             #gets the excel file from front-end
             arr = request.get_array(field_name='file')
@@ -566,6 +632,11 @@ def upload():
 
             #shuffle the list of users
             random.shuffle(users)
+
+
+            create_new_code("I1234", 10)
+            create_new_code("R1234", 10)
+            create_new_code("Q1234", 10)
 
             # the generator gives realtime feedback on the users uploaded
             # it also contains the logic for initiating the game
@@ -579,7 +650,7 @@ def upload():
                 compute_ranks()
                 yield "<div></div> All users uploaded, let the games begin!"
                 yield "<div><button><a href="+ "/" + ">Take me back to admin page</a></button></div>"
-
+            set_all_stats()
             return Response(generate(), mimetype='text/html')
     return redirect(url_for('index'))
 
@@ -588,41 +659,32 @@ def activate24():
     if is_admin():
 
         for match in matches_ref.stream():
-            match_dict = match_dict.to_dict()
+            match_dict = match.to_dict()
             if match_dict["time_ended"] == "":
                 match_dict["time_ended"] = time_now()
                 match_dict["reason"] = "24-R"
-                match_dict.document(match["id"]).update(match)
+                matches_ref.document(match_dict["id"]).update(match_dict)
 
+        alive_count = 0
+        dead_count = 0
+        for user in users_ref.stream():
+            user = user.to_dict()
+            if(not within_24_hours(time_now(), user["time_of_last_elim"])):
+                user["time_eliminated"] = time_now()
+                dead_count +=1
+                users_ref.document(user["user_id"]).update(user)
+            else:
+                alive_count += 1
 
+        all_users_alive = users_ref.where("time_eliminated", "==", "").get()
 
-
-
-        #find a more efficient way to do this, I can't pass custom functions in to filter :( something such as:
-        # users_without_elim = User.query.filter(not within_24_hours(time_now(), User.time_of_last_elim)).all()
-        # n_eliminated = len(users_without_elim)
-        # for user in users_without_elim:
-        #     user.time_eliminated = time_now()
-
-        all_users = get_table(User)
-        users_without_elim_emails = []
-        for user in all_users:
-            if not within_24_hours(user["time_of_last_elim"], time_now()):
-                users_without_elim_emails.append(user["email"])
-
-        all_users_without_elim = User.query.filter(User.email.in_(users_without_elim_emails)).all()
-        n_eliminated = len(all_users_without_elim)
-        for user in all_users_without_elim:
-            user.time_eliminated = time_now()
-
-        all_users = User.query.filter_by(time_eliminated="").all()
         all_emails = []
-        for user in all_users:
-            all_emails.append(user.serialize()["email"])
+        for user in all_users_alive:
+            all_emails.append(user.to_dict()["email"])
         random.shuffle(all_emails)
 
         def generate():
-            yield "<div>{} users eliminated as a result of the 24-hour round</div>".format(n_eliminated)
+            yield "<div>{} users eliminated as a result of the 24-hour round</div>".format(dead_count)
             for x in range(0,len(all_emails)-1):
                 yield "<div></div> {} out of {} matches created".format(x+1, len(all_emails)-1)
                 create_new_match(all_emails[x], all_emails[x+1])
@@ -636,18 +698,18 @@ def activate24():
     else:
         return "Access denied"
 
-# @app.route('/leaderboard')
-# def leaderboard():
-#     return str(get_leaderboard(3))
-#
-# @app.route('/all_stats')
-# def all_stats():
-#     return str(get_all_stats())
-#
-# @app.route('/statistics')
-# def statistics():
-#     return render_template("stats.html", stats=get_all_stats())
-#
+@app.route('/leaderboard')
+def leaderboard():
+    return str(get_leaderboard(3))
+
+@app.route('/all_stats')
+def all_stats():
+    return str(get_all_stats())
+
+@app.route('/statistics')
+def statistics():
+    return render_template("stats.html", stats=get_all_stats())
+
 @app.route('/announcements')
 def announcements():
     return render_template("announcements.html", announcements="")

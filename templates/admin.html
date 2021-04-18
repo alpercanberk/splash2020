@@ -181,6 +181,12 @@
 <button class='btn btn-primary' onclick="pauseGame();"> Continue Game </button>
 {% endif %}
 
+{% if not is_immunity_on %}
+<button class='btn btn-primary' onclick="pauseImmunity();"> Continue Immunity </button>
+{% else %}
+<button class='btn btn-primary' onclick="pauseImmunity();"> Pause Immunity </button>
+{% endif %}
+
 <div style="margin-top:20px">
 <form action="/shuffle_game" method="post">
 <input type="submit" value="Shuffle Game" class='btn btn-primary' onclick="shuffleGame()">
@@ -270,6 +276,13 @@
     axios({
       method:'post',
       url:'/pause_game',
+    }).then(data => {alert(data["data"]); window.location.reload();})
+  }
+
+  function pauseImmunity(){
+    axios({
+      method:'post',
+      url:'/pause_immunity',
     }).then(data => {alert(data["data"]); window.location.reload();})
   }
 

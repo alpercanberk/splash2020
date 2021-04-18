@@ -80,8 +80,8 @@ def get_all_stats():
     fmt = "%Y-%m-%d %H:%M:%S"
 
     recent_elims = 0
-    for elim in matches_ref.stream():
-        if(within_24_hours(elim.to_dict()["time_ended"], datetime.now().strftime(fmt))):
+    for user in users_ref.stream():
+        if(within_24_hours(user.to_dict()["time_eliminated"], datetime.now().strftime(fmt))):
             recent_elims += 1
 
     print(">>>>>>")
