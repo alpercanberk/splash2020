@@ -20,12 +20,3 @@ parentdir = os.path.dirname(currentdir)
 sys.path.insert(0,parentdir)
 
 from lists import Lists
-
-@routes.route('/team')
-def team():
-    return render_template("team.html")
-
-@routes.route('/hof')
-def hof():
-    return render_template("hof.html")
-

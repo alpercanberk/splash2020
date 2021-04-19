@@ -1,5 +1,12 @@
 
 class Lists():
+    announcements = [
+        {
+            "title":"Splash will begin on May 10th",
+            "content":"Get ready!"
+        }
+    ]
+
     rules = [
         "In the event of any conflicts, email lvillesplashmaster19@gmail.com, NOT either of the Splashmasters’ Lawrenceville emails. Otherwise, we won’t be able to both see the issue and deal with it accordingly. It is up to the Splashmasters’ discretion to adjudicate any conflicts and/or eliminate players for breaking these rules as they see fit.",
         "You must have your splash code on you at all times. When you get splashed, you must show the splasher your code so that they can input it into the website to get their next target. The splasher now attempts to pursue their next target. If a code is not working, try switching a zero with the letter O and vice versa before you email the Splashmasters.",

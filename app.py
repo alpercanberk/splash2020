@@ -44,16 +44,18 @@ def expire_ability(code, used_by, used_on):
     ability = codes_ref.where("code","==",code).get()
 
     if(len(ability) > 0):
-        ability = ability[0].get()
+        ability = ability[0].to_dict()
         ability["used_at"] = time_now()
         ability["used_on"] = used_on
         ability["used_by"] = used_by
 
-        user = User.query.filter_by(email=used_by).first()
-        if(user is not None):
-            user.codes_found += 1
+        user = users_ref.where("email","==",used_by).get()
+        if(len(user) > 0):
+            user = user[0].to_dict()
+            user["codes_found"] += 1
 
-        db.session.commit()
+        users_ref.document(user["user_id"]).update(user)
+        codes_ref.document(ability["code"]).update(ability)
     else:
         print("Something went wrong...")
 
@@ -71,7 +73,7 @@ def create_new_user(name, email):
 def create_new_code(code, duration):
     print("Code creation initialized")
     # try:
-    id = generate_user_id()
+    id = code
     new_code = code_model(code, duration)
     codes_ref.document(id).set(new_code)
 
@@ -182,10 +184,13 @@ def is_admin():
     return False
 
 def is_logged_in():
-    user_found = users_ref.where("email","==",flask.session["user_info"]["email"]).get()
-    if len(user_found) > 0:
-        return True
+    if("user_info" in flask.session.keys()):
+        user_found = users_ref.where("email","==",flask.session["user_info"]["email"]).get()
+        if len(user_found) > 0:
+            return True
+        return False
     return False
+
 
 def is_paused():
     is_paused = pause_ref.document("0").get().to_dict()["is_paused"]
@@ -361,6 +366,7 @@ def index():
                 print("user is not none >>>", user_found)
                 if(not user_found["time_eliminated"] == ""):
                     is_eliminated = True
+                    target_info = ""
                 if(not is_eliminated):
                     current_match_of_user = matches_ref.where('hunter_email', '==', flask.session["user_info"]["email"]).where("time_ended","==","").get()[0].to_dict()
                     target_info = users_ref.where("email", "==", current_match_of_user["target_email"]).get()[0].to_dict()
@@ -495,7 +501,7 @@ def parse_code(link):
 @app.route('/revive_ability', methods=['POST'])
 def revive_ability():
     code_from_link = parse_code(request.json["link"])
-    if(is_logged_in() and (len(codes_ref.query("code","==","code_from_link").get()) > 0)):
+    if(is_logged_in() and (len(codes_ref.where("code","==",code_from_link).where("used_at", "==", "").get()) > 0)):
         if(revive_user(request.json["email"])):
             expire_ability(code=code_from_link, used_on=request.json["email"], used_by=flask.session["user_info"]["email"])
             return "Revive successful"
@@ -505,35 +511,39 @@ def revive_ability():
         return "Access denied, try logging in."
 
 
-# @app.route('/qualify_ability', methods=['POST'])
-# def qualify_user():
-#     code_from_link = parse_code(request.json["link"])
-#     #check if the code exists and that it's valid
-#     if(is_logged_in() and (Code.query.filter_by(code=code_from_link).filter_by(used_at=None).first() is not None)):
-#         print("Someone is qualifying for the final...")
-#         user_found = User.query.filter_by(email=flask.session["user_info"]["email"]).first()
-#         eliminate_user(flask.session["user_info"]["email"])
-#         user_found.name = user_found.name + " -Q*"
-#         expire_ability(code=code_from_link, used_by=flask.session["user_info"]["email"], used_on=flask.session["user_info"]["email"])
-#         return "Qualified!"
-#     else:
-#         return "Access denied, try logging in."
-#
-# @app.route('/immunity_ability', methods=['POST'])
-# def immunity_ability():
-#     code_from_link = parse_code(request.json["link"])
-#     code = Code.query.filter_by(code=code_from_link).filter_by(used_at=None).first()
-#     #check if the code exists and that it's valid
-#     if(is_logged_in() and (code is not None)):
-#         if(grant_immunity(request.json["email"], code.serialize()["duration"])):
-#             print("Someone is activating their immunity ability")
-#             expire_ability(code=code_from_link, used_by=flask.session["user_info"]["email"], used_on=request.json["email"])
-#             return "Immunity granted!"
-#         else:
-#             return "Oops, something went wrong. Check the validity of your input."
-#     else:
-#         return "Access denied, try logging in."
-#
+@app.route('/qualify_ability', methods=['POST'])
+def qualify_user():
+    code_from_link = parse_code(request.json["link"])
+    #check if the code exists and that it's valid
+    if(is_logged_in() and (Code.query.filter_by(code=code_from_link).filter_by(used_at=None).first() is not None)):
+        print("Someone is qualifying for the final...")
+        user_found = User.query.filter_by(email=flask.session["user_info"]["email"]).first()
+        eliminate_user(flask.session["user_info"]["email"])
+        user_found.name = user_found.name + " -Q*"
+        expire_ability(code=code_from_link, used_by=flask.session["user_info"]["email"], used_on=flask.session["user_info"]["email"])
+        return "Qualified!"
+    else:
+        return "Access denied, try logging in."
+
+@app.route('/immunity_ability', methods=['POST'])
+def immunity_ability():
+    code_from_link = parse_code(request.json["link"])
+    code = codes_ref.where("code","==",code_from_link).where("used_at","==","").get()
+    #check if the code exists and that it's valid
+    if(is_logged_in() and (len(code) > 0)):
+        code = code[0].to_dict()
+        if(is_immunity_on()):
+            if(grant_immunity(request.json["email"], code["duration"])):
+                print("Someone is activating their immunity ability")
+                expire_ability(code=code_from_link, used_by=flask.session["user_info"]["email"], used_on=request.json["email"])
+                return "Immunity granted!"
+            else:
+                return "Oops, something went wrong. Check the validity of your input."
+        else:
+            return "Sorry, immunity abilities are currently deactivated. You would not want to use your code right now."
+    else:
+        return "Access denied, try logging in."
+
 # @app.route('/displace_ability', methods = ['POST'])
 
 @app.route('/shuffle_game', methods=['POST'])
@@ -708,11 +718,19 @@ def all_stats():
 
 @app.route('/statistics')
 def statistics():
-    return render_template("stats.html", stats=get_all_stats())
+    return render_template("stats.html",logged_in=is_logged_in(), stats=get_all_stats())
+
+@app.route('/team')
+def team():
+    return render_template("team.html", logged_in = is_logged_in())
+
+@app.route('/hof')
+def hof():
+    return render_template("hof.html", logged_in = is_logged_in())
 
 @app.route('/announcements')
 def announcements():
-    return render_template("announcements.html", announcements="")
+    return render_template("announcements.html", logged_in=is_logged_in(), announcements=Lists.announcements)
 
 if __name__ == '__main__':
     app.config['SESSION_TYPE'] = 'filesystem'
