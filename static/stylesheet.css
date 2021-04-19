@@ -281,10 +281,6 @@ h2{
   font-size: 30px;
 }
 
-/*Vertical Sliding*/
-.slidingVertical{
-}
-
 .slidingVertical span{
 	animation: topToBottom 12.5s linear infinite 0s;
 	-ms-animation: topToBottom 12.5s linear infinite 0s;
