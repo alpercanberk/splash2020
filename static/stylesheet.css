@@ -282,22 +282,22 @@ h2{
 }
 
 span:before{
-  content: 'hello';
+  content: '\"All warfare is based on deception\" -Sun Tzu';
   animation: animate infinite 8s;
 
 }
 @keyframes animate {
 
   25%{
-    content: 'Quote2';
+    content: '\"Sometimes you have to lie. But to yourself you must always tell the truth\" -Louise Fitzhugh';
   }
   50%{
-    content: 'Quote3';
+    content: '\"It is the oldest question of all George. Who can spy on the spies?\" -John le Carre';
   }
   75%{
-    content: 'Quote4';
+    content: '\"Keep your friends close, and your enemies closer\" -Sun Tzu';
   }
   100%{
-    content: 'Quote5';
+    content: '\"Your fear is 100% dependent on you for its survival\" -Dr. Steve Maraboli';
   }
 }
