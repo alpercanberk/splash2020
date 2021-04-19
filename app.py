@@ -515,12 +515,14 @@ def revive_ability():
 def qualify_user():
     code_from_link = parse_code(request.json["link"])
     #check if the code exists and that it's valid
-    if(is_logged_in() and (Code.query.filter_by(code=code_from_link).filter_by(used_at=None).first() is not None)):
+    if(is_logged_in() and len(codes_ref.where("code","==",code_from_link).where("used_at","==", "").get()) > 0):
         print("Someone is qualifying for the final...")
-        user_found = User.query.filter_by(email=flask.session["user_info"]["email"]).first()
+        user_found = users_ref.where("email","==",flask.session["user_info"]["email"]).get()[0].to_dict()
         eliminate_user(flask.session["user_info"]["email"])
-        user_found.name = user_found.name + " -Q*"
+        user_found["name"] = user_found["name"] + " -Q*"
+        user_found["time_eliminated"] = time_now()
         expire_ability(code=code_from_link, used_by=flask.session["user_info"]["email"], used_on=flask.session["user_info"]["email"])
+        users_ref.document(user_found["user_id"]).update(user_found)
         return "Qualified!"
     else:
         return "Access denied, try logging in."
@@ -722,7 +724,7 @@ def statistics():
 
 @app.route('/team')
 def team():
-    return render_template("team.html", logged_in = is_logged_in())
+    return render_template("team.html", logged_in = is_logged_in(), team=Lists.team)
 
 @app.route('/hof')
 def hof():

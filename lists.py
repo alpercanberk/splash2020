@@ -31,38 +31,29 @@ class Lists():
     admins = [
         "acanberk21@lawrenceville.org",
         "ntorres22@lawrenceville.org",
-        "syoon19@lawrenceville.org"
+        "jnicholson22@lawrenceville.org",
+        "slee23@lawrenceville.org"
     ]
     team = [
         {
-            'name':"Kayla Miller '19",
-            'contact':'kmiller19@lawrenceville.org',
-            'role':'Social Coordinator'
+            'name':"Jamie Nicholson '22",
+            'contact':'jnicholson22@lawrenceville.org',
+            'role':'Splash Ops'
         },
         {
-            'name':"Stephanie Yoon '19",
-            'contact':'syoon19@lawrenceville.org',
-            'role':'Splash Master'
+            'name':"Idaya Chambers '21",
+            'contact':'ichambers21@lawrenceville.org',
+            'role':'Splash Ops'
         },
         {
-            'name':"Elaine Wang '20",
-            'contact':'ewang20@lawrenceville.org',
-            'role':'Splash Master'
+            'name':"Nico Torres '22",
+            'contact':'ntorres22@lawrenceville.org',
+            'role':'Splash Ops and Video Producer'
         },
         {
-            'name':"Jeffrey Tao '20",
-            'contact':'jtao@lawrenceville.org',
-            'role':'Artist'
-        },
-        {
-            'name':"Koch Kasemsantitham '19",
-            'contact':'kkasemsantitham@lawrenceville.org',
-            'role':'Video Producer'
-        },
-        {
-            'name':"Pashmina Khan '21",
-            'contact':'pkhan21@lawrenceville.org',
-            'role':'Video Producer'
+            'name':"Sally Lee '23",
+            'contact':'slee23@lawrenceville.org',
+            'role':'Programmer'
         },
         {
             'name':"Alper Canberk '21",
