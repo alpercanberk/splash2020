@@ -88,10 +88,10 @@
 
 ol {list-style: none; counter-reset: li}
 
-li.leaderboard-item::before {content: counter(li)"."; 
+li.leaderboard-item::before {content: counter(li)".";
 
   color: #257BFF;
-  display: inline-block; 
+  display: inline-block;
   width: 1em;
 
   margin-left: -1em}
@@ -271,4 +271,33 @@ body{
 
 .navbar-light .navbar-toggler{
   border:0px;
+}
+
+
+h2{
+  padding: 0;
+  margin:0;
+  color: #fff;
+  font-size: 30px;
+}
+
+span:before{
+  content: 'hello';
+  animation: animate infinite 8s;
+
+}
+@keyframes animate {
+
+  25%{
+    content: 'Quote2';
+  }
+  50%{
+    content: 'Quote3';
+  }
+  75%{
+    content: 'Quote4';
+  }
+  100%{
+    content: 'Quote5';
+  }
 }
