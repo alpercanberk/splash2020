@@ -32,7 +32,8 @@ class Lists():
         "acanberk21@lawrenceville.org",
         "ntorres22@lawrenceville.org",
         "jnicholson22@lawrenceville.org",
-        "slee23@lawrenceville.org"
+        "slee23@lawrenceville.org",
+        "ichambers21@lawrenceville.org"
     ]
     team = [
         {

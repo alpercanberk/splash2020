@@ -361,8 +361,9 @@ def index():
             all_stats = (get_all_stats()),
             )
         else:
-            user_found =  users_ref.where('email', '==', flask.session["user_info"]["email"]).get()[0].to_dict()
+            user_found =  users_ref.where('email', '==', flask.session["user_info"]["email"]).get()
             if len(user_found):
+                user_found = user_found[0].to_dict()
                 print("user is not none >>>", user_found)
                 if(not user_found["time_eliminated"] == ""):
                     is_eliminated = True
