@@ -666,7 +666,6 @@ def upload():
                     create_new_match(users[x]['email'], users[x+1]['email'])
                 create_new_user(users[len(users)-1]['name'], users[len(users)-1]['email'])
                 create_new_match(users[len(users)-1]['email'], users[0]['email'])
-                compute_ranks()
                 yield "<div></div> All users uploaded, let the games begin!"
                 yield "<div><button><a href="+ "/" + ">Take me back to admin page</a></button></div>"
             set_all_stats()

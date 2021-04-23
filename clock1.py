@@ -40,3 +40,4 @@ def wear_down_immunity():
             users_ref.document(immune_user["user_id"]).update(immune_user)
 
 wear_down_immunity()
+print("1 minute interval clock executed")

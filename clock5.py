@@ -113,3 +113,5 @@ def compute_ranks():
 
 get_all_stats()
 compute_ranks()
+
+print("5 minute interval clock executed")
