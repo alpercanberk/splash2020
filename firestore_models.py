@@ -49,8 +49,8 @@ def pause_model():
 def immunity_model():
     return {"is_immunity_on":True}
 
-def stats_model():
-    return {"all_stats": ""}
+def stats_model(n_users, n_matches):
+    return {"all_stats": "", "n_users":n_users, "n_matches":n_matches, "n_users_alive":0, "n_matches_ongoing":0}
 
 def announcements_model(title, content):
     return {

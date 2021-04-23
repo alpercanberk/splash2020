@@ -56,10 +56,11 @@ def get_table(table):
 
 def get_basic_stats():
 
-    n_users = len(get_table(users_ref))
-    n_matches = len(get_table(matches_ref))
-    n_users_alive = len(users_ref.where("time_eliminated","==","").get())
-    n_matches_ongoing = len(matches_ref.where("time_ended","==", "").get())
+    stats = stats_ref.document("0").get().to_dict()
+    n_users = stats["n_users"]
+    n_matches = stats["n_matches"]
+    n_users_alive = stats["n_users_alive"]
+    n_matches_ongoing = stats["n_matches_ongoing"]
 
     return n_users, n_matches, n_users_alive, n_matches_ongoing
 
