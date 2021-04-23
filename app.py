@@ -115,13 +115,6 @@ def get_leaderboard(n_users):
     leaderboard = users_ref.order_by("number_of_elims",direction=firestore.Query.DESCENDING).limit(n_users).get()
     return [user.dict() for user in leaderboard]
 
-def compute_ranks():
-
-    all_users = [user.to_dict() for user in users_ref.order_by("number_of_elims",direction=firestore.Query.DESCENDING).get()]
-    for i in range(0, len(all_users)):
-        all_users[i]["rank"] = i
-        users_ref.document(all_users[i]["user_id"]).update(all_users[i])
-
 def eliminate_user(email, increment_elimination_count=False):
 
     print("Eliminate user function activated")
@@ -182,8 +175,6 @@ def eliminate_user(email, increment_elimination_count=False):
         stats["n_users_alive"] -= 1
         stats_ref.document("0").update(stats)
         #
-        compute_ranks()
-
         return "Elimination successful"
     else:
         return "User not found."
@@ -747,6 +738,16 @@ def hof():
 @app.route('/announcements')
 def announcements():
     return render_template("announcements.html", logged_in=is_logged_in(), announcements=Lists.announcements)
+
+@app.errorhandler(404)
+def page_not_found(e):
+    # note that we set the 404 status explicitly
+    return render_template('404.html'), 404
+
+@app.errorhandler(500)
+def page_not_found(e):
+    # note that we set the 404 status explicitly
+    return render_template('500.html'), 404
 
 if __name__ == '__main__':
     app.config['SESSION_TYPE'] = 'filesystem'

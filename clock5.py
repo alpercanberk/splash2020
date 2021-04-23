@@ -15,9 +15,6 @@ from routes import *
 from utils import *
 from lists import *
 
-from flask_sslify import SSLify
-from flask_sqlalchemy import SQLAlchemy
-
 from firebase_admin import credentials, firestore, initialize_app
 
 app = Flask(__name__)
@@ -107,15 +104,12 @@ def get_all_stats():
         })
     stats_ref.document("0").update(stats)
 
+def compute_ranks():
 
-def wear_down_immunity():
-    # print("Immunity works")
-    users_with_immunity = users_ref.where("immunity_duration", ">", 0).get()
-    if(len(users_with_immunity) > 0):
-        for immune_user in users_with_immunity:
-            immune_user = immune_user.to_dict()
-            immune_user["immunity_duration"] -= 1
-            users_ref.document(immune_user["user_id"]).update(immune_user)
+    all_users = [user.to_dict() for user in users_ref.order_by("number_of_elims",direction=firestore.Query.DESCENDING).get()]
+    for i in range(0, len(all_users)):
+        all_users[i]["rank"] = i
+        users_ref.document(all_users[i]["user_id"]).update(all_users[i])
 
 get_all_stats()
-wear_down_immunity()
+compute_ranks()
