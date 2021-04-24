@@ -38,6 +38,17 @@
   </div>
 </div>
 
+<div class="leaderboard">
+  <h1>Code Leaderboard</h1>
+  <div>
+  <ol class="leaderboard-list">
+    {% for user in stats["code_leaderboard"] %}
+    <li class="leaderboard-item">{{user["name"]}} - {{user["codes_found"]}} Codes Found</li>
+    {% endfor %}
+  </ol>
+  </div>
+</div>
+
 </div>
 
 <div class="card">
