@@ -61,14 +61,17 @@ def expire_ability(code, used_by, used_on):
 
 def create_new_user(name, email):
     print("User creation initialized")
-    try:
-        id = generate_user_id()
-        new_user = user_model(name, email, id)
-        users_ref.document(id).set(new_user)
 
-        return "User created"
-    except Exception as e:
-        return str(e)
+    stats = stats_ref.document("0").get().to_dict()
+    stats["n_users_alive"] += 1
+    stats_ref.document("0").update(stats)
+
+    id = generate_user_id()
+    new_user = user_model(name, email, id)
+    users_ref.document(id).set(new_user)
+
+    return "User created"
+
 
 def create_new_code(code, duration):
     print("Code creation initialized")
@@ -84,6 +87,9 @@ def create_new_code(code, duration):
 
 def create_new_match(hunter_email, target_email):
     id = generate_random_id()
+    stats = stats_ref.document("0").get().to_dict()
+    stats["n_matches_ongoing"] += 1
+    stats_ref.document("0").update(stats)
     try:
         new_match = match_model(hunter_email, target_email, id)
         matches_ref.document(id).set(new_match)
@@ -97,10 +103,11 @@ def get_table(table):
 
 def get_basic_stats():
 
-    n_users = len(get_table(users_ref))
-    n_matches = len(get_table(matches_ref))
-    n_users_alive = len(users_ref.where("time_eliminated","==","").get())
-    n_matches_ongoing = len(matches_ref.where("time_ended","==", "").get())
+    stats = stats_ref.document("0").get().to_dict()
+    n_users = stats["n_users"]
+    n_matches = stats["n_matches"]
+    n_users_alive = stats["n_users_alive"]
+    n_matches_ongoing = stats["n_matches_ongoing"]
 
     return n_users, n_matches, n_users_alive, n_matches_ongoing
 
@@ -108,23 +115,22 @@ def get_leaderboard(n_users):
     leaderboard = users_ref.order_by("number_of_elims",direction=firestore.Query.DESCENDING).limit(n_users).get()
     return [user.dict() for user in leaderboard]
 
-def compute_ranks():
-
-    all_users = [user.to_dict() for user in users_ref.order_by("number_of_elims",direction=firestore.Query.DESCENDING).get()]
-    for i in range(0, len(all_users)):
-        all_users[i]["rank"] = i
-        users_ref.document(all_users[i]["user_id"]).update(all_users[i])
-
 def eliminate_user(email, increment_elimination_count=False):
 
     print("Eliminate user function activated")
 
-    user_being_eliminated = users_ref.where("email","==",email).get()
+    user_being_eliminated = users_ref.where("email","==",email).where("time_eliminated", "==", "").get()
 
     #check if the user exists
-
     if(len(user_being_eliminated) > 0):
         user_being_eliminated = user_being_eliminated[0].to_dict()
+        print(user_being_eliminated)
+
+        # print(">>>")
+        # print(matches_ref.where("hunter_email","==",email).where("time_ended","==","").get())
+        # print(matches_ref.where("hunter_email","==",email).get())
+        # print(">>>")
+
 
         user_active_match_hunter = matches_ref.where("hunter_email","==",email).where("time_ended","==","").get()[0].to_dict()
         target_of_user_email = user_active_match_hunter["target_email"]
@@ -149,34 +155,38 @@ def eliminate_user(email, increment_elimination_count=False):
         else:
             print("Didn't increment elimination count")
 
-        # #complete both hunter and target elims with the given reason
-        user_active_match_hunter["time_ended"] = time_now()
-        user_active_match_hunter["reason"] = "Hunter died"
-
-        user_active_match_target["time_ended"]=time_now()
-
         if increment_elimination_count:
-            user_active_match_target["reason"] = "Elimination"
+            reas = "Elimination"
         else:
-            user_active_match_target["reason"] = "DQ"
+            reas = "DQ"
 
-        #update the database with the most recent changes
-        matches_ref.document(user_active_match_hunter["id"]).update(user_active_match_hunter)
-        matches_ref.document(user_active_match_target["id"]).update(user_active_match_target)
+        # #complete both hunter and target elims with the given reason
+        terminate_match(user_active_match_hunter, "Hunter died")
+        terminate_match(user_active_match_target, reas)
 
-        # #pair up hunter and the target and create a new elim
         create_new_match(hunter_of_user_email, target_of_user_email)
         print("New match created!")
 
-        # #kill the user
-        user_being_eliminated["time_eliminated"] = time_now()
+        # #kill the usermatch["time_ended"] = time_now()
+        user_being_eliminated["time_eliminated"]=time_now()
         users_ref.document(user_being_eliminated["user_id"]).update(user_being_eliminated)
-        #
-        compute_ranks()
 
+        stats = stats_ref.document("0").get().to_dict()
+        stats["n_users_alive"] -= 1
+        stats_ref.document("0").update(stats)
+        #
         return "Elimination successful"
     else:
         return "User not found."
+
+def terminate_match(match, reason):
+    match["time_ended"] = time_now()
+    match["reason"] = reason
+    matches_ref.document(match["id"]).update(match)
+    stats = stats_ref.document("0").get().to_dict()
+    stats["n_matches_ongoing"] -= 1
+    stats_ref.document("0").update(stats)
+    return "ok"
 
 def is_admin():
     if(flask.session["user_info"]["email"] in admins):
@@ -274,9 +284,7 @@ def insert_into_chain(email, reason):
     match_target_email = match_picked["target_email"]
 
     # #complete elim_picked
-    match_picked["time_ended"] = time_now()
-    match_picked["reason"] = reason
-    matches_ref.document(match_picked["id"]).update(match_picked)
+    terminate_match(match_picked, reason)
 
     create_new_match(match_hunter_email, email)
     create_new_match(email, match_target_email)
@@ -361,8 +369,9 @@ def index():
             all_stats = (get_all_stats()),
             )
         else:
-            user_found =  users_ref.where('email', '==', flask.session["user_info"]["email"]).get()[0].to_dict()
+            user_found =  users_ref.where('email', '==', flask.session["user_info"]["email"]).get()
             if len(user_found):
+                user_found = user_found[0].to_dict()
                 print("user is not none >>>", user_found)
                 if(not user_found["time_eliminated"] == ""):
                     is_eliminated = True
@@ -520,7 +529,6 @@ def qualify_user():
         user_found = users_ref.where("email","==",flask.session["user_info"]["email"]).get()[0].to_dict()
         eliminate_user(flask.session["user_info"]["email"])
         user_found["name"] = user_found["name"] + " -Q*"
-        user_found["time_eliminated"] = time_now()
         expire_ability(code=code_from_link, used_by=flask.session["user_info"]["email"], used_on=flask.session["user_info"]["email"])
         users_ref.document(user_found["user_id"]).update(user_found)
         return "Qualified!"
@@ -553,10 +561,7 @@ def shuffle_game():
     if is_admin():
 
         for match in matches_ref.stream():
-            match = match.to_dict()
-            match["time_ended"] = time_now()
-            match["reason"] = "Game shuffled"
-            matches_ref.document(match["id"]).update(match)
+            terminate_match(match.to_dict(), "Game shuffled")
 
         #finds all alive users and shuffles their emails
         all_users_alive = users_ref.where("time_eliminated", "==", "").get()
@@ -633,7 +638,6 @@ def upload():
 
             #create new pause variable
             pause_ref.document("0").set(pause_model())
-            stats_ref.document("0").set(stats_model())
             immunity_ref.document("0").set(immunity_model())
 
             #gets the excel file from front-end
@@ -644,6 +648,9 @@ def upload():
 
             #shuffle the list of users
             random.shuffle(users)
+
+            stats_ref.document("0").set(stats_model(len(users), len(users)))
+
 
 
             create_new_code("I1234", 10)
@@ -659,7 +666,6 @@ def upload():
                     create_new_match(users[x]['email'], users[x+1]['email'])
                 create_new_user(users[len(users)-1]['name'], users[len(users)-1]['email'])
                 create_new_match(users[len(users)-1]['email'], users[0]['email'])
-                compute_ranks()
                 yield "<div></div> All users uploaded, let the games begin!"
                 yield "<div><button><a href="+ "/" + ">Take me back to admin page</a></button></div>"
             set_all_stats()
@@ -673,18 +679,16 @@ def activate24():
         for match in matches_ref.stream():
             match_dict = match.to_dict()
             if match_dict["time_ended"] == "":
-                match_dict["time_ended"] = time_now()
-                match_dict["reason"] = "24-R"
-                matches_ref.document(match_dict["id"]).update(match_dict)
+                terminate_match(match_dict, reason="24-R")
 
         alive_count = 0
         dead_count = 0
         for user in users_ref.stream():
             user = user.to_dict()
             if(not within_24_hours(time_now(), user["time_of_last_elim"])):
-                user["time_eliminated"] = time_now()
+                eliminate_user(user["email"])
                 dead_count +=1
-                users_ref.document(user["user_id"]).update(user)
+
             else:
                 alive_count += 1
 
@@ -733,6 +737,16 @@ def hof():
 @app.route('/announcements')
 def announcements():
     return render_template("announcements.html", logged_in=is_logged_in(), announcements=Lists.announcements)
+
+@app.errorhandler(404)
+def page_not_found(e):
+    # note that we set the 404 status explicitly
+    return render_template('404.html'), 404
+
+@app.errorhandler(500)
+def page_not_found(e):
+    # note that we set the 404 status explicitly
+    return render_template('500.html'), 404
 
 if __name__ == '__main__':
     app.config['SESSION_TYPE'] = 'filesystem'
