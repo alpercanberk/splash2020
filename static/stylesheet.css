@@ -2,6 +2,10 @@
   padding:20px;
 } */
 
+body{
+  font-family:'Open Sans' !important;
+}
+
 #base-navbar {
   border-radius:5px;
   margin-bottom:10px;
@@ -88,13 +92,14 @@
 
 ol {list-style: none; counter-reset: li}
 
-li.leaderboard-item::before {content: counter(li)".";
+li.leaderboard-item::before {content: counter(li)"";
 
   color: #257BFF;
-  display: inline-block;
   width: 1em;
+  float:left;
 
-  margin-left: -1em}
+  margin-left: 1em
+}
 
 li.leaderboard-item {counter-increment: li}
 
