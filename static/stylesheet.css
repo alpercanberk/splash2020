@@ -47,6 +47,7 @@ body{
   text-align:center;
   margin:auto 60px;
   margin-bottom:10px;
+  font-size:calc(10px + 1vw);
 }
 
 #index-video-wrapper{
@@ -64,30 +65,61 @@ body{
 .leaderboard{
   margin:15px;
   text-align:center;
-  border:1px solid black !important;
+  /* border:1px solid black !important; */
   border-radius:5px;
   background-color:white;
   padding:20px;
 }
 
+.elim-count{
+  float:right;
+  margin-right:5px;
+}
+
+.role{
+  font-size:calc(6px + 1vw);
+}
+
 .leaderboard-item{
   background-color:black;
   color:white;
-  font-size:30px;
+  font-size:calc(4px + 3vw);
   border:1px solid black !important;
   width:100%;
   margin:5px;
   border-radius:5px;
 }
 
-.member{
-  font-size:20px;
+.leaderboard-item-head{
+  background-color:white;
+  color:black;
+  font-size:3vw;
+  border:1px solid black !important;
+  width:100%;
+  margin:5px;
   border-radius:5px;
-  border:1px solid black;
+}
+
+
+
+
+.team-member{
+  /* font-size:20px; */
+  border-radius:5px;
+  border:5px solid #9B9C9C;
   padding:5px 20px;
   margin:10px;
-  background-color:black;
-  color:white;
+  background-color:white;
+  color:black;
+  /* box-shadow: 3px 5px 5px black; */
+}
+
+.name-role{
+  font-size:25px;
+}
+
+.contact{
+  font-size:20px;
 }
 
 ol {list-style: none; counter-reset: li}
@@ -138,7 +170,7 @@ li.leaderboard-item {counter-increment: li}
 }
 
 li.hof-li{
-  font-size:40px !important;
+  font-size:calc(15px + 1vw) !important;
   list-style: none;
 }
 
@@ -151,7 +183,7 @@ li.hof-li{
 
 .title{
   text-align:center;
-  font-size:50px;
+  font-size:calc(40px+1vw);
   color:white;
   font-family:'Bungee'
 }
@@ -319,6 +351,7 @@ body{
   margin-right: auto;
   left:0;
   right:0;
+  font-size:calc(10px + 1vw)
   /* width:100%; */
 }
 .slidingVertical span:nth-child(2){

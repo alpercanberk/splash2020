@@ -39,12 +39,19 @@
 
 <div class="leaderboard">
   <h1>Leaderboard</h1>
-  <div>
-  <ol class="leaderboard-list">
+  <div class="leaderboard-list">
+    <div class="row leaderboard-item-head">
+      <div class="col-1">Rank</div>
+      <div class="col-5">Name</div>
+      <div class="col-5">#Eliminations</div>
+    </div>
     {% for user in all_stats["leaderboard"] %}
-    <li class="leaderboard-item">{{user["name"]}} - {{user["number_of_elims"]}} Eliminations</li>
+      <div class="row leaderboard-item">
+        <div class="col-1">{{user["rank"] + 1}}</div>
+        <div class="col-5" >{{user["name"]}}</div>
+        <div class="col-5">{{user["number_of_elims"]}}</div>
+      </div>
     {% endfor %}
-  </ol>
   </div>
 </div>
 

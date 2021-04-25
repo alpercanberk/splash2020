@@ -3,7 +3,9 @@ class Lists():
     announcements = [
         {
             "title":"Splash will begin on May 10th",
-            "content":"Get ready!"
+            "content":"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
+            "date":"04/06/2021"
+
         }
     ]
 
@@ -18,12 +20,11 @@ class Lists():
         "No stealing/destroying property in order to splash your target (aka no blackmailing or taking people's things).",
         "No splashing outside Lville gates (including Main St.)",
         "You cannot lie to the Splashmasters, including lying about practice times or other commitments to be “safe” from Splash.",
-        "Be respectful to the players, don't hack the website.",
     ]
     tips = [
         "Never trust anyone, even your best friends.",
         "Always be on the lookout for a person following you.",
-        "Turn off your Snap Map, people can see where you are.",
+        "Turn off your Snap Map, people might see where you are.",
         "Try not to share your schedule with others.",
         "An ambush is always better than chasing. If you see your target, don't start running at him. Approach him silently.",
         "Try not to miss your classes while playing.",

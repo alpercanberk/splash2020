@@ -1,16 +1,16 @@
 {% extends 'base.html' %}
 {% block content %}
 
-<h1 class="title"> SPLASH 2020 TEAM </H1>
+<h1 class="title"> SPLASH 2021 TEAM </H1>
 
 <div class="card">
 <!-- <h1 class="card-title">
 Splashmasters
 </h1> -->
 {% for person in team %}
-<div class="member">
-  <p>{{ person["name" ]}} - {{ person["role"] }}</p>
-  <p>{{ person["contact"]}} </p>
+<div class="team-member">
+  <p class="name-role"><span style="font-family:Bungee;"> {{ person["name" ]}} </span> &nbsp {{ person["role"] }}</p>
+  <p class="contact">{{ person["contact"]}} </p>
 </div>
 {% endfor %}
 <!-- <div class="member">Areeq Hasan '20'</div>
