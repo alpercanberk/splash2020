@@ -181,7 +181,6 @@
 </div>
 
 <div class="card">
-<p> Let Alper do these locally as well</p>
 
 {% if not is_paused %}
 <button style="margin:5px;" class='btn btn-primary' onclick="pauseGame();"> Pause Game </button>
@@ -194,6 +193,8 @@
 {% else %}
 <button style="margin:5px;" class='btn btn-primary' onclick="pauseImmunity();"> Pause Immunity </button>
 {% endif %}
+
+<p> Let Alper do these locally as well</p>
 
 <div style="margin-top:20px">
 <form action="/shuffle_game" method="post">
