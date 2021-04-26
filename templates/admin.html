@@ -4,14 +4,15 @@
 <h1 class="title"> Admin page </h1>
 
 <div class="card">
-<div>Num users: {{basic_stats[0]}}</div>
-<div>Num matches: {{basic_stats[1]}}</div>
-<div>Num users alive: {{basic_stats[2]}}</div>
-<div>Num matches ongoing: {{basic_stats[3]}}</div>
+  <h3><b>Basic Stats</b></h3>
+  <div>Number of total players: <b>{{basic_stats[0]}}</b></div>
+  <div>Number of total matches: <b>{{basic_stats[1]}}</b></div>
+  <div>Number of users alive: <b>{{basic_stats[2]}}</b></div>
+  <div>Number of matches ongoing: <b>{{basic_stats[3]}}</b></div>
 </div>
 
 <div class="button-container">
-<button class="btn btn-light" onclick="toggleShow('user_table')">Toggle User Table</button>
+<button class="btn btn-light" onclick="toggleShow('user_table')">Show/Hide User Table</button>
 </div>
 <div class="card" id="user_table" style="display:none;">
   <table style="width:95%" class="table">
@@ -39,7 +40,7 @@
 </div>
 
 <div class="button-container">
-<button class="btn btn-light" onclick="toggleShow('elim_table')"> Toggle Elim Table </button>
+<button class="btn btn-light" onclick="toggleShow('elim_table')">Show/Hide Elim Table </button>
 </div>
 
 <div class="card" id = "elim_table"  style="display:none;">
@@ -65,7 +66,7 @@
 
 
 <div class="button-container">
-<button class="btn btn-light" onclick="toggleShow('code_table')"> Toggle Code Table </button>
+<button class="btn btn-light" onclick="toggleShow('code_table')">Show/Hide Code Table </button>
 </div>
 
 <div class="card" id="code_table" style="display:none;">
@@ -95,18 +96,22 @@
 <div class="card">
  <h2>Add a user</h2>
  <form class="add-form" id="add-form" onsubmit="return submitAdd();">
- <label> email </label>
+ <div>
+ <label> Email: </label>
  <input type=textarea name=email id="add-textarea-email">
- <label> name </label>
+ </div>
+ <label> Name: </label>
  <input type=textarea name=name id="add-textarea-name">
+ <div>
  <input type=submit value=Add class="btn btn-primary">
+ </div>
 </form>
 </div>
 
 <div class="card">
  <h2>Revive a user</h2>
  <form class="revive-form" id="revive-form" onsubmit="return submitRevive();">
- <label> email </label>
+ <label> Email: </label>
  <input type=textarea name=email id="add-textarea-email">
  <input type=submit value=Add class="btn btn-primary">
 </form>
@@ -166,6 +171,7 @@
 
 <div class="card">
  <h2>Upload a new game</h2>
+ <p>Preferably let Alper do it locally, there seems to be a slight problem with uploading from the actual website for now.</p>
  <form action="/upload" onsubmit="return confirm('Do you really want to submit the form?');" method=post enctype=multipart/form-data><p>
  <div class="form-group">
  <input type=file name=file>
@@ -175,26 +181,28 @@
 </div>
 
 <div class="card">
+<p> Let Alper do these locally as well</p>
+
 {% if not is_paused %}
-<button class='btn btn-primary' onclick="pauseGame();"> Pause Game </button>
+<button style="margin:5px;" class='btn btn-primary' onclick="pauseGame();"> Pause Game </button>
 {% else %}
-<button class='btn btn-primary' onclick="pauseGame();"> Continue Game </button>
+<button style="margin:5px;" class='btn btn-primary' onclick="pauseGame();"> Continue Game </button>
 {% endif %}
 
 {% if not is_immunity_on %}
-<button class='btn btn-primary' onclick="pauseImmunity();"> Continue Immunity </button>
+<button style="margin:5px;" class='btn btn-primary' onclick="pauseImmunity();"> Continue Immunity </button>
 {% else %}
-<button class='btn btn-primary' onclick="pauseImmunity();"> Pause Immunity </button>
+<button style="margin:5px;" class='btn btn-primary' onclick="pauseImmunity();"> Pause Immunity </button>
 {% endif %}
 
 <div style="margin-top:20px">
 <form action="/shuffle_game" method="post">
-<input type="submit" value="Shuffle Game" class='btn btn-primary' onclick="shuffleGame()">
+<input type="submit" value="Shuffle Game" class='btn btn-danger' onclick="shuffleGame()">
 </form>
 </div>
 
 <form action="/activate_24_hour_round" method="post">
-<input type="submit" value="Complete 24 Hour Round" class='btn btn-primary' onclick="activate24();">
+<input type="submit" value="Complete 24 Hour Round" class='btn btn-danger' onclick="activate24();">
 </form>
 
 </div>

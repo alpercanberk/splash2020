@@ -71,6 +71,8 @@ body{
   padding:20px;
 }
 
+.user-info-left{}
+
 .elim-count{
   float:right;
   margin-right:5px;
