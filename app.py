@@ -321,7 +321,7 @@ def eliminate_user_admin_route():
 def eliminate_user_route():
     #if someone tries to fuck up the program, their identity will be known
     print(flask.session["user_info"]["email"], "attempting to eliminate a user")
-    code = upper(request.json["code"])
+    code = str.upper(request.json["code"])
 
     current_match = matches_ref.where("hunter_email","==",flask.session["user_info"]["email"]).where("time_ended","==","")
 
