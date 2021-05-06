@@ -299,6 +299,11 @@ def revive_user(email):
         user_found["num_revives"] += 1
         users_ref.document(user_found["user_id"]).update(user_found)
         insert_into_chain(user_found["email"], "Revive")
+
+        stats = stats_ref.document("0").get().to_dict()
+        stats["n_users_alive"] += 1
+        stats_ref.document("0").update(stats)
+
         return True
     else:
         return False
@@ -316,7 +321,7 @@ def eliminate_user_admin_route():
 def eliminate_user_route():
     #if someone tries to fuck up the program, their identity will be known
     print(flask.session["user_info"]["email"], "attempting to eliminate a user")
-    code = request.json["code"]
+    code = upper(request.json["code"])
 
     current_match = matches_ref.where("hunter_email","==",flask.session["user_info"]["email"]).where("time_ended","==","")
 
@@ -756,6 +761,10 @@ def hof():
 @app.route('/announcements')
 def announcements():
     return render_template("announcements.html", logged_in=is_logged_in(), announcements=Lists.announcements)
+
+@app.route('/rules')
+def rules():
+    return render_template("rules.html", logged_in=is_logged_in())
 
 @app.errorhandler(404)
 def page_not_found(e):
