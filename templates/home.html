@@ -40,6 +40,7 @@
             <div class="target-inner">
               <div><strong>Name:</strong> {{target_info["name"]}}</div>
               <div><strong>Email:</strong> {{target_info["email"]}}</div>
+              <div><strong>Message: </strong>{{target_info["bio"]}}</div>
               <div><strong>Immunity left:</strong>  {{target_info["immunity_duration"]}} minutes</div>
                 <div style="margin:5px 5px">
                 {% if all_stats["is_immunity_on"] %}
@@ -87,6 +88,27 @@
         </div>
       </div>
 
+      <div class="col-12">
+        <div class='card'>
+          <!-- <img rel="icon" class="user-icon" src="/static/heart_icon.png" type="image/x-icon"> -->
+           <div class="card-title">Edit bio</div>
+           <p>Write a message to your hunter! (Max 30 characters)</p>
+           <p><strong>Current Message:</strong>
+             {% if user_info["bio"] %}
+              {{user_info["bio"]}}
+             {% else %}
+               - your bio is currently empty -
+              {% endif %}
+           </p>
+           <form onsubmit="return submitBio();">
+           <div class="form-group" style="text-align:center">
+           <input class="code-textarea" type=textarea name=bio id=bio-text>
+           <input class="code-submit" type=submit value="Edit" class="btn btn-primary">
+           </div>
+           </form>
+        </div>
+      </div>
+
     </div>
 </div>
 <script>
@@ -106,6 +128,18 @@
   function submitAbilityCode(){
     code = document.getElementById("ability-code").value
     window.location.href = "/ability/" + code
+    return false;
+  }
+
+  function submitBio(){
+    bio = document.getElementById("bio-text").value
+    axios({
+      method:'post',
+      url:'/change_bio',
+      data:{
+        bio:bio,
+      }
+    }).catch(e=>console.log(e)).then(data => {alert(data["data"]); window.location.reload();})
     return false;
   }
 

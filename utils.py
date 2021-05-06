@@ -6,6 +6,14 @@ import time
 from datetime import datetime
 from pytz import timezone
 
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from email.message import EmailMessage
+from jinja2 import Template
+
+import os
+import smtplib
+
 def gtd(generator):
     list = []
     for element in generator:
@@ -20,6 +28,34 @@ def generate_user_id():
 def generate_random_id():
     return ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(10))
 
+def send_message(user_emails, announcement):
+
+    content = ""
+
+    message_template = Template(content)
+    message = message_template.render()
+
+    mail = smtplib.SMTP('smtp.googlemail.com', 587)
+
+    mail.ehlo()
+    mail.starttls()
+    mail.login(os.environ["EMAIL_USERNAME"], os.environ["EMAIL_PASSWORD"])
+
+    msg = MIMEMultipart()
+
+    msg['From'] = "hi"
+    msg["Bcc"] = ", ".join(user_emails)
+    print(user_emails)
+    msg['Subject'] = announcement + " --- " + str(time_now())[-8:]
+    msg.attach(MIMEText("", 'html'))
+
+
+    mail.send_message(msg)
+    del msg
+
+    mail.close()
+
+    print('A message is sent\n\n')
 
 fmt = "%Y-%m-%d %H:%M:%S"
 

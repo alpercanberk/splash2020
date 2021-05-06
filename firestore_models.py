@@ -22,6 +22,7 @@ def user_model(name, email, id):
         "immunity_duration":0,
 
         "time_created":str(time_now()),
+        "bio":"",
 
         "num_revives":0,
 

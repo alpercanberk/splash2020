@@ -463,6 +463,17 @@ def ability(code):
         #TODO make this page
         return "Log in in order to gain new ability by clicking <a href='/auth/google'>here</a>"
 
+@app.route('/change_bio', methods=['POST'])
+def change_bio():
+    if "user_info" in flask.session.keys():
+        if(len(request.json["bio"]) < 30):
+            user_info = users_ref.where('email',"==", flask.session["user_info"]["email"]).get()[0].to_dict()
+            user_info["bio"] = request.json["bio"]
+            users_ref.document(user_info["user_id"]).update(user_info)
+            return "Success"
+        else:
+            return "The text you entered is too long. It has to contain less than 30 characters."
+
 @app.route('/ability/')
 def ability_index():
     return render_template("invalid_ability_code.html")
@@ -473,9 +484,17 @@ def pause_game():
         pause = pause_ref.document("0").get().to_dict()
         pause["is_paused"] = not pause["is_paused"]
         pause_ref.document("0").update(pause)
+
+        all_user_emails = [user["email"] for user in [user.to_dict() for user in users_ref.stream()]]
+
+        print("hello")
         if pause["is_paused"]:
+            print(all_user_emails)
+            send_message(all_user_emails, "Splash has been paused!")
             return "Game paused"
         else:
+            print(all_user_emails)
+            send_message(all_user_emails, "Splash continues...")
             return "Game started"
     else:
         return "Access denied"
