@@ -494,12 +494,12 @@ def pause_game():
 
         print("hello")
         if pause["is_paused"]:
-            print(all_user_emails)
-            send_message(all_user_emails, "Splash has been paused!")
+            # print(all_user_emails)
+            # send_message(all_user_emails, "Splash has been paused!")
             return "Game paused"
         else:
-            print(all_user_emails)
-            send_message(all_user_emails, "Splash continues...")
+            # print(all_user_emails)
+            # send_message(all_user_emails, "Splash continues...")
             return "Game started"
     else:
         return "Access denied"

@@ -40,7 +40,10 @@
             <div class="target-inner">
               <div><strong>Name:</strong> {{target_info["name"]}}</div>
               <div><strong>Email:</strong> {{target_info["email"]}}</div>
+              {% if user_info["bio"] %}
               <div><strong>Message: </strong>{{target_info["bio"]}}</div>
+              {% else %}
+               {% endif %}
               <div><strong>Immunity left:</strong>  {{target_info["immunity_duration"]}} minutes</div>
                 <div style="margin:5px 5px">
                 {% if all_stats["is_immunity_on"] %}
