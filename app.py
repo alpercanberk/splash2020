@@ -489,13 +489,14 @@ def ability(code):
 @app.route('/change_bio', methods=['POST'])
 def change_bio():
     if "user_info" in flask.session.keys():
-        if(len(request.json["bio"]) < 30):
+        max_bio_len = 55
+        if(len(request.json["bio"]) < 55):
             user_info = users_ref.where('email',"==", flask.session["user_info"]["email"]).get()[0].to_dict()
             user_info["bio"] = request.json["bio"]
             users_ref.document(user_info["user_id"]).update(user_info)
             return "Success"
         else:
-            return "The text you entered is too long. It has to contain less than 30 characters."
+            return "The text you entered is too long. It has to contain less than 55 characters."
 
 @app.route('/ability/')
 def ability_index():
