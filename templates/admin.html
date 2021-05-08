@@ -146,12 +146,8 @@
    <div>
    <strong> Previous </strong>
    <div>
-     <label> User Email </label>
-     <input type=textarea name=previous_email>
-   </div>
-   <div>
-    <label> User Name </label>
-    <input type=textarea name=previous_name>
+     <label> User ID </label>
+     <input type=textarea name=user_id>
    </div>
    </div>
    <div>
@@ -220,14 +216,13 @@
 
   function submitEdit(){
     var form = document.getElementById("edit-form");
-    console.log(form.elements["previous_name"].value);
+    // console.log(form.elements["previous_name"].value);
     if(confirm('Do you really want to edit this user?')){
       axios({
         method:'post',
         url:'/edit_user',
         data:{
-          previous_name:form.elements["previous_name"].value,
-          previous_email:form.elements["previous_email"].value,
+          id:form.elements["user_id"].value,
           new_name:form.elements["new_name"].value,
           new_email:form.elements["new_email"].value
         }

@@ -428,26 +428,27 @@ def edit_user():
         print("Editing user...")
         data = request.json
 
-        previous_email = data["previous_email"]
-        previous_name = data["previous_name"]
+        user_id = data["id"]
         new_email = data["new_email"]
         new_name = data["new_name"]
 
         #change the name in matches as well
-        user_found = users_ref.where("name","==","previous_name").where("email","==",previous_email).get()
+        user_found = users_ref.where("user_id","==",user_id).get()
 
         if len(user_found) > 0:
             user_found = user_found[0].to_dict()
 
             #change the name in hunter matches
-            matches_found_as_hunter = matches_ref.where("hunter_email","==", user_found["email"]).get()
-            matches_found_as_target = matches_ref.where("target_email","==",user_found["email"]).get()
+            matches_found_as_hunter = matches_ref.where("hunter_email","==", user_found["email"]).stream()
+            matches_found_as_target = matches_ref.where("target_email","==",user_found["email"]).stream()
 
             for match in matches_found_as_hunter:
+                match = match.to_dict()
                 match["hunter_email"] = new_email
                 matches_ref.document(match["id"]).update(match)
 
             for match in matches_found_as_target:
+                match = match.to_dict()
                 match["target_email"] = new_email
                 matches_ref.document(match["id"]).update(match)
 
@@ -685,7 +686,7 @@ def upload():
             arr = request.get_array(field_name='file')
             users=[]
             for u in arr:
-                users.append({'name':u[0], 'email':u[1]})
+                users.append({'name':u[0], 'email':str.lower(u[1])})
 
             #shuffle the list of users
             random.shuffle(users)
