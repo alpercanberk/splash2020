@@ -7,7 +7,7 @@
       <div class="col-md-6 col-xs-12">
         <div class="card">
           <h3 class="card-title">your profile</h3>
-          <button id="ShowButton" class="button hvr-glow" onclick="showCode()" value="{{user_info['user_id']}}">see your code</button>
+          <button id="ShowButton" class="button hvr-glow" onclick="showCode()" value="{{user_info['user_id']}}">SEE YOUR CODE</button>
           <div class="row">
 
             <div class="col-md-6 col-xs-12 col-sm-12 user-info-left" style="max-width:300px;">
@@ -148,10 +148,10 @@
 
   function showCode() {
     var text = document.getElementById("ShowButton");
-    if (text.textContent === "see your code") {
+    if (text.textContent === "SEE YOUR CODE") {
       text.textContent = text.value;
     } else {
-      text.textContent = "see your code";
+      text.textContent = "SEE YOUR CODE";
     }
   }
 </script>

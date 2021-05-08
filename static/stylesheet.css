@@ -239,6 +239,7 @@ button:focus {
 }
 
 .hvr-glow {
+  font-family:arial;
   display: inline-block;
   vertical-align: middle;
   -webkit-transform: perspective(1px) translateZ(0);

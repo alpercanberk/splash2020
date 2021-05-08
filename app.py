@@ -111,6 +111,17 @@ def get_basic_stats():
 
     return n_users, n_matches, n_users_alive, n_matches_ongoing
 
+
+def get_basic_stats_admin():
+    stats = stats_ref.document("0").get().to_dict()
+    n_users = stats["n_users"]
+    n_matches = stats["n_matches"]
+    n_users_alive = len(users_ref.where("time_eliminated","==","").get())
+    n_matches_ongoing = len(matches_ref.where("time_ended","==","").get())
+
+    return n_users, n_matches, n_users_alive, n_matches_ongoing
+
+
 def get_leaderboard(n_users):
     leaderboard = users_ref.order_by("number_of_elims",direction=firestore.Query.DESCENDING).limit(n_users).get()
     return [user.dict() for user in leaderboard]
@@ -130,7 +141,13 @@ def eliminate_user(email, increment_elimination_count=False):
         # print(matches_ref.where("hunter_email","==",email).where("time_ended","==","").get())
         # print(matches_ref.where("hunter_email","==",email).get())
         # print(">>>")
+        print(">> Debug >>")
 
+        print(matches_ref.where("hunter_email","==",email).get())
+        print(matches_ref.where("time_ended","==","").get())
+        print(matches_ref.where("hunter_email","==",email).where("time_ended","==","").get())
+        print(email)
+        print(">>>>")
 
         user_active_match_hunter = matches_ref.where("hunter_email","==",email).where("time_ended","==","").get()[0].to_dict()
         target_of_user_email = user_active_match_hunter["target_email"]
@@ -367,7 +384,7 @@ def index():
             logged_in = True,
             user_table = all_users,
             match_table = all_matches,
-            basic_stats = (get_basic_stats()),
+            basic_stats = (get_basic_stats_admin()),
             is_paused = (is_paused()),
             is_immunity_on=(is_immunity_on()),
             codes_table = (get_table(codes_ref)),
@@ -700,21 +717,25 @@ def upload():
 def activate24():
     if is_admin():
 
-        for match in matches_ref.stream():
-            match_dict = match.to_dict()
-            if match_dict["time_ended"] == "":
-                terminate_match(match_dict, reason="24-R")
-
         alive_count = 0
         dead_count = 0
         for user in users_ref.stream():
             user = user.to_dict()
             if(not within_24_hours(time_now(), user["time_of_last_elim"])):
+                print(">>>>>")
+                print(user["email"])
+                print(">>>>>")
                 eliminate_user(user["email"])
                 dead_count +=1
 
             else:
                 alive_count += 1
+
+        for match in matches_ref.stream():
+            match_dict = match.to_dict()
+            if match_dict["time_ended"] == "":
+                terminate_match(match_dict, reason="24-R")
+
 
         all_users_alive = users_ref.where("time_eliminated", "==", "").get()
 
