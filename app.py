@@ -479,6 +479,8 @@ def ability(code):
                 return render_template("immunity_ability.html", logged_in = True, duration=code["duration"])
             if(code_found[0] == "Q"):
                 return render_template("qualify_ability.html", logged_in = True)
+            if(code_found[0] == "P"):
+                return redirect("https://www.youtube.com/watch?v=dQw4w9WgXcQ&ab_channel=RickAstleyVEVO", code=302)
         else:
             print('Invalid ability code attempt by', flask.session["user_info"]["email"])
             return render_template("invalid_ability_code.html")
@@ -577,6 +579,16 @@ def qualify_user():
         return "Qualified!"
     else:
         return "Access denied, try logging in."
+
+# @app.route('/prank_ability', methods=['POST'])
+# def qualify_user():
+#     code_from_link = parse_code(request.json["link"])
+#     #check if the code exists and that it's valid
+#     if(is_logged_in() and len(codes_ref.where("code","==",code_from_link).where("used_at","==", "").get()) > 0):
+#         return "https://www.youtube.com/watch?v=dQw4w9WgXcQ&ab_channel=RickAstleyVEVO"
+#     else:
+#         return "Access denied, try logging in."
+
 
 @app.route('/immunity_ability', methods=['POST'])
 def immunity_ability():
