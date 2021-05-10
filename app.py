@@ -801,6 +801,10 @@ def announcements():
 def rules():
     return render_template("rules.html", logged_in=is_logged_in())
 
+@app.route("/18652820686")
+def secret_code():
+    return render_template("secret_code.html")
+
 @app.errorhandler(404)
 def page_not_found(e):
     # note that we set the 404 status explicitly
