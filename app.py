@@ -121,10 +121,11 @@ def get_basic_stats_admin():
 
     return n_users, n_matches, n_users_alive, n_matches_ongoing
 
+#changed from "dict()" to "to_dict()"
 
 def get_leaderboard(n_users):
     leaderboard = users_ref.order_by("number_of_elims",direction=firestore.Query.DESCENDING).limit(n_users).get()
-    return [user.dict() for user in leaderboard]
+    return [user.to_dict() for user in leaderboard]
 
 def eliminate_user(email, increment_elimination_count=False):
 
@@ -689,7 +690,7 @@ def upload():
             delete_collection(codes_ref, 50)
             delete_collection(pause_ref, 1)
             delete_collection(immunity_ref, 1)
-            delete_collection(stats_ref, 1)
+            # delete_collection(stats_ref, 1)
 
             #create new pause variable
             pause_ref.document("0").set(pause_model())
@@ -705,8 +706,6 @@ def upload():
             random.shuffle(users)
 
             stats_ref.document("0").set(stats_model(len(users), len(users)))
-
-
 
             create_new_code("I1234", 10)
             create_new_code("R1234", 10)
