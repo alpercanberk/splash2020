@@ -30,11 +30,12 @@ class Lists():
         "Try not to miss your classes while playing.",
     ]
     admins = [
-        "acanberk21@lawrenceville.org",
         "ntorres22@lawrenceville.org",
         "jnicholson22@lawrenceville.org",
         "slee23@lawrenceville.org",
-        "ichambers21@lawrenceville.org"
+        "bbarrett23@lawrenceville.org",
+        "rwangkuijs24@lawrenceville.org",
+        "mrobinson23@lawrenceville.org"
     ]
     team = [
         {
@@ -43,14 +44,24 @@ class Lists():
             'role':'Splash Ops'
         },
         {
-            'name':"Idaya Chambers '21",
-            'contact':'ichambers21@lawrenceville.org',
-            'role':'Splash Ops'
-        },
-        {
             'name':"Nico Torres '22",
             'contact':'ntorres22@lawrenceville.org',
             'role':'Splash Ops and Video Producer'
+        },
+        {
+            'name':"Bradley Barrett '23",
+            'contact':'bbarrett23@lawrenceville.org',
+            'role':'Splash Ops'
+        },
+        {
+            'name':"Remko Kuijs '24",
+            'contact':'rwangkuijs24@lawrenceville.org',
+            'role':'Splash Ops'
+        },
+        {
+            'name':"Margot Robinson '23",
+            'contact':'mrobinson23@lawrenceville.org',
+            'role':'Splash Ops'
         },
         {
             'name':"Sally Lee '23",
