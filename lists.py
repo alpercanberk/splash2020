@@ -66,11 +66,11 @@ class Lists():
         {
             'name':"Sally Lee '23",
             'contact':'slee23@lawrenceville.org',
-            'role':'Programmer'
+            'role':'CEO, Programmer'
         },
         {
             'name':"Alper Canberk '21",
             'contact':'acanberk21@lawrenceville.org',
-            'role':'CEO',
+            'role':'Past member',
         }
     ]
