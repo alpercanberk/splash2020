@@ -2,7 +2,7 @@
 class Lists():
     announcements = [
         # {
-        #     "title":"Splash will begin on May 10th",
+        #     "title":"Splash will begin on April 18th, 2022",
         #     "content":"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
         #     "date":"04/06/2021"
         #
@@ -71,6 +71,6 @@ class Lists():
         {
             'name':"Alper Canberk '21",
             'contact':'acanberk21@lawrenceville.org',
-            'role':'CEO and Programmer',
+            'role':'CEO',
         }
     ]
