@@ -130,9 +130,9 @@ def get_leaderboard(n_users):
 def eliminate_user(email, increment_elimination_count=False):
 
     print("Eliminate user function activated")
-
+    print(email)
     user_being_eliminated = users_ref.where("email","==",email).where("time_eliminated", "==", "").get()
-
+    print(user_being_eliminated)
     #check if the user exists
     if(len(user_being_eliminated) > 0):
         user_being_eliminated = user_being_eliminated[0].to_dict()
@@ -341,7 +341,7 @@ def eliminate_user_route():
     print(flask.session["user_info"]["email"], "attempting to eliminate a user")
     code = str.upper(request.json["code"])
 
-    current_match = matches_ref.where("hunter_email","==",flask.session["user_info"]["email"]).where("time_ended","==","")
+    current_match = matches_ref.where("time_ended","==","")
 
     if current_match is not None:
         current_target_email = current_match.get()[0].to_dict()["target_email"]
@@ -725,6 +725,57 @@ def upload():
             set_all_stats()
             return Response(generate(), mimetype='text/html')
     return redirect(url_for('index'))
+
+@app.route('/generate_codes', methods=['POST'])
+def generateCodes():
+    if is_admin():
+        # print("counting survivors")
+        # all_users_alive = users_ref.where("time_eliminated", "==", "").get()
+
+        # all_emails = []
+        # for user in all_users_alive:
+        #     all_emails.append(user.to_dict()["name"])
+        
+        # print(all_emails)
+
+        # return "survivor list returned!!!"
+
+        create_new_code("I8720", 10)
+        create_new_code("I3847", 10)
+        create_new_code("I2937", 10)
+        create_new_code("I3980", 10)
+        create_new_code("I5982", 10)
+
+        create_new_code("R3923", 10)
+        create_new_code("R3532", 10)
+        create_new_code("R3092", 10)
+        create_new_code("R9520", 10)
+        create_new_code("R9724", 10)
+        create_new_code("R0935", 10)
+
+        create_new_code("Q3987", 10)
+        create_new_code("Q4832", 10)
+
+        return "Code generated!!!"
+    else:
+        return "Access denied"
+
+# @app.route('/survivor_list', methods=['POST'])
+# def ():
+#     if is_admin():
+#         print("counting survivors")
+#         all_users_alive = users_ref.where("time_eliminated", "==", "").get()
+
+#         all_emails = []
+#         for user in all_users_alive:
+#             all_emails.append(user.to_dict()["email"])
+        
+#         print(all_emails)
+
+#         return "survivor list returned!!!"
+#     else:
+#         return "Access denied"
+
 
 @app.route('/activate_24_hour_round', methods=['POST'])
 def activate24():

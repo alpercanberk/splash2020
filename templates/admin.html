@@ -118,16 +118,17 @@
 </div>
 
 <div class="card">
- <h2>Eliminate a user</h2>
- <form class="eliminate-form" id="eliminate-form" onsubmit="return submitEliminate();">
-   <input type=textarea name=email id="eliminate-textarea">
-   <div>
-     <input type="checkbox" id="checkBox" onclick="switchCheckbox()">
-     <label>Increment hunter's elimination count</label>
-   </div>
-   <input type=submit value=Eliminate class="btn btn-danger">
-</form>
-</div>
+  <h2>Eliminate a user (with email)</h2>
+  <form class="eliminate-form" id="eliminate-form" onsubmit="return submitEliminate();">
+    <input type=textarea name=email id="eliminate-textarea">
+    <div>
+      <input type="checkbox" id="checkBox" onclick="switchCheckbox()">
+      <label>Increment hunter's elimination count</label>
+    </div>
+    <input type=submit value=Eliminate class="btn btn-danger">
+ </form>
+ </div>
+ 
 
 <div class="card">
  <h2>Grant immunity to a user</h2>
@@ -194,7 +195,7 @@
 
 <div style="margin-top:20px">
 <form action="/shuffle_game" method="post">
-<input type="submit" value="Shuffle Game" class='btn btn-danger' onclick="shuffleGame()">
+<input type="submit" value="Shuffle Game" class='btn btn-danger' onclick="shuffle_game()">
 </form>
 </div>
 
@@ -202,6 +203,11 @@
 <input type="submit" value="Complete 24 Hour Round" class='btn btn-danger' onclick="activate24();">
 </form>
 
+
+<form action="/generate_codes" method="post">
+  <input type="submit" value="Generate Codes" class='btn btn-danger' onclick="generateCodes();">
+  </form>
+  
 </div>
 
 <script>
