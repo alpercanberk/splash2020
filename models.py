@@ -161,6 +161,33 @@ class Immunity(db.Model):
     def serialize(self):
         return self.is_immunity_on
 
+# class Issue(db.Model):
+#     __tablename__ = 'issues'
+
+#     id = db.Column(db.Integer, primary_key=True)
+#     is_resolved = db.Column(db.Boolean)
+#     user_email = db.Column(db.String())
+#     admin_email = db.Column(db.String())
+#     content = db.Column(db.String())
+#     time_created = db.Column(db.String())
+
+#     def __init__(self, user_email, content):
+#         self.is_resolved = False
+#         self.user_email = user_email
+#         self.admin_email = ""
+#         self.content = content
+#         self.time_created = time_now()
+
+#     def __repr__(self):
+#         return 'issue'
+
+#     def serialize(self):
+#         return {
+#         "user":self.user_email,
+#         "content":self.content
+#         }
+
+
 class Stats(db.Model):
     __tablename__ = 'stats'
 
@@ -195,7 +222,6 @@ class Announcements(db.Model):
         "title":self.announcement_title,
         "content":self.announcement_content
         }
-
 
 
 class Code(db.Model):

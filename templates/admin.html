@@ -118,16 +118,17 @@
 </div>
 
 <div class="card">
- <h2>Eliminate a user</h2>
- <form class="eliminate-form" id="eliminate-form" onsubmit="return submitEliminate();">
-   <input type=textarea name=email id="eliminate-textarea">
-   <div>
-     <input type="checkbox" id="checkBox" onclick="switchCheckbox()">
-     <label>Increment hunter's elimination count</label>
-   </div>
-   <input type=submit value=Eliminate class="btn btn-danger">
-</form>
-</div>
+  <h2>Eliminate a user (with email)</h2>
+  <form class="eliminate-form" id="eliminate-form" onsubmit="return submitEliminate();">
+    <input type=textarea name=email id="eliminate-textarea">
+    <div>
+      <input type="checkbox" id="checkBox" onclick="switchCheckbox()">
+      <label>Increment hunter's elimination count</label>
+    </div>
+    <input type=submit value=Eliminate class="btn btn-danger">
+ </form>
+ </div>
+ 
 
 <div class="card">
  <h2>Grant immunity to a user</h2>
@@ -184,6 +185,12 @@
 <button style="margin:5px;" class='btn btn-primary' onclick="pauseGame();"> Continue Game </button>
 {% endif %}
 
+{% if not is_on %}
+<button style="margin:5px;" class='btn btn-primary' onclick="active_timer();"> Activate Timer </button>
+{% else %}
+<button style="margin:5px;" class='btn btn-primary' onclick="active_timer();"> Pause Timer </button>
+{% endif %}
+
 {% if not is_immunity_on %}
 <button style="margin:5px;" class='btn btn-primary' onclick="pauseImmunity();"> Continue Immunity </button>
 {% else %}
@@ -194,7 +201,7 @@
 
 <div style="margin-top:20px">
 <form action="/shuffle_game" method="post">
-<input type="submit" value="Shuffle Game" class='btn btn-danger' onclick="shuffleGame()">
+<input type="submit" value="Shuffle Game" class='btn btn-danger' onclick="shuffle_game()">
 </form>
 </div>
 
@@ -202,6 +209,35 @@
 <input type="submit" value="Complete 24 Hour Round" class='btn btn-danger' onclick="activate24();">
 </form>
 
+
+<form action="/generate_codes" method="post">
+  <input type="submit" value="Generate Codes" class='btn btn-danger' onclick="generateCodes();">
+  </form>
+  
+</div>
+
+<div class="card" id = "issue_table">
+  <h2>User Issues</h2>
+  <p> Mark resolved after resolving the issue. Check your email to see the submitted issues.</p>
+  <table style="width:95%" class="table">
+    <tr>
+      <th>User</th>
+      <th>Resolved by</th>
+      <th>Time Created</th>
+      <th>Time Resolved</th>
+    </tr>
+    {% for issue in issue_table %}
+      <tr>
+        <td>{{issue["user_email"]}}</td>
+        <td>{{issue["admin_email"]}}</td>
+        <td>{{issue["time_created"]}}</td>
+        <td>{{issue["time_resolved"]}}</td>
+        <td><div class="btn">
+					<a href="{{ url_for('resolveIssue', issue_id = issue['id']) }}">resolve</a>
+				</div></td>
+      </tr>
+    {% endfor %}
+  </table>
 </div>
 
 <script>
@@ -280,6 +316,13 @@
     axios({
       method:'post',
       url:'/pause_game',
+    }).then(data => {alert(data["data"]); window.location.reload();})
+  }
+
+  function active_timer(){
+    axios({
+      method:'post',
+      url:'/active_timer',
     }).then(data => {alert(data["data"]); window.location.reload();})
   }
 

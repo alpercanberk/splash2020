@@ -30,32 +30,21 @@ class Lists():
         "Try not to miss your classes while playing.",
     ]
     admins = [
-        "ntorres22@lawrenceville.org",
-        "jnicholson22@lawrenceville.org",
         "slee23@lawrenceville.org",
         "bbarrett23@lawrenceville.org",
         "rwangkuijs24@lawrenceville.org",
-        "mrobinson23@lawrenceville.org"
+        "mrobinson23@lawrenceville.org",
+        "acalderon24@lawrenceville.org"
     ]
     team = [
         {
-            'name':"Jamie Nicholson '22",
-            'contact':'jnicholson22@lawrenceville.org',
-            'role':'Splash Ops'
-        },
-        {
-            'name':"Nico Torres '22",
-            'contact':'ntorres22@lawrenceville.org',
-            'role':'Splash Ops and Video Producer'
+            'name':"Sally Lee '23",
+            'contact':'slee23@lawrenceville.org',
+            'role':'CEO, Programmer'
         },
         {
             'name':"Bradley Barrett '23",
             'contact':'bbarrett23@lawrenceville.org',
-            'role':'Splash Ops'
-        },
-        {
-            'name':"Remko Kuijs '24",
-            'contact':'rwangkuijs24@lawrenceville.org',
             'role':'Splash Ops'
         },
         {
@@ -64,9 +53,14 @@ class Lists():
             'role':'Splash Ops'
         },
         {
-            'name':"Sally Lee '23",
-            'contact':'slee23@lawrenceville.org',
-            'role':'CEO, Programmer'
+            'name':"Allison Calderon '24",
+            'contact':'acalderon24@lawrenceville.org',
+            'role':'Splash Ops'
+        },
+        {
+            'name':"Remko Kuijs '24",
+            'contact':'rwangkuijs24@lawrenceville.org',
+            'role':'Splash Ops'
         },
         {
             'name':"Alper Canberk '21",
