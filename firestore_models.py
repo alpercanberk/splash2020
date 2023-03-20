@@ -47,6 +47,9 @@ def match_model(hunter_email, target_email, id):
 def pause_model():
     return {"is_paused":False}
 
+def timer_model():
+    return {"is_on":False, "end_day":0, "end_hr":0, "end_min":0, "end_sec":0}
+
 def immunity_model():
     return {"is_immunity_on":True}
 
@@ -67,4 +70,15 @@ def code_model(code, duration):
         "used_at":"",
         "used_by":"",
         "used_on":""
+    }
+
+def issue_model(user_email, content, id):
+    return {
+        "user_email":user_email,
+        "content":content,
+        "admin_email":"",
+        "is_resolved":False,
+        "time_created":str(time_now()),
+        "time_resolved":"",
+        "id": id
     }

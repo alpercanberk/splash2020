@@ -1,15 +1,24 @@
 {% extends 'base.html' %}
 {% block content %}
 
-<h1 class="title"> Home page </h1>
+<h1 class="title"> Game page </h1>
   <div class="container">
     <div class="row">
+      
+      {% if is_on %}
+      <div class="col-12">
+        <div class="card">
+          <h3 class="card-title"> 24hr Round Activated</h3>
+          <div style="text-align:center;font-size:23px;font-weight:bold" id="timer">March {{end_day}}, 2023 {{end_hr}}:{{end_min}}:00</div>
+        </div>
+      </div>
+      {% endif %}
+      
       <div class="col-md-6 col-xs-12">
         <div class="card">
           <h3 class="card-title">your profile</h3>
           <button id="ShowButton" class="button hvr-glow" onclick="showCode()" value="{{user_info['user_id']}}">SEE YOUR CODE</button>
           <div class="row">
-
             <div class="col-md-6 col-xs-12 col-sm-12 user-info-left" style="max-width:300px;">
               <div style="font-size:23px;font-weight:bold">{{user_info["name"]}}</div>
               <div><strong>Email: </strong>{{user_info["email"]}}</div>
@@ -21,11 +30,10 @@
                 <span class="badge badge-danger">Eliminated</span>
               {% endif %}
             </div>
-
             <div class="col-md-6 col-xs-12 col-sm-12" style="padding:15px;margin:auto;max-width:300px;">
               <div id="rank-display">
               <div style="font-size:22px">RANK</div>
-              <div>#{{user_info["rank"] + 1}}</div>
+              <div>{{user_info["rank"] + 1}}</div>
               </div>
             </div>
 
@@ -112,9 +120,32 @@
         </div>
       </div>
 
+      <div class="col-12">
+        <div class='card'>
+          <div class="card-title">Report Issue</div>
+          <p>The issue will automatically be notified to the game admins. Please check your email for the response.</p>
+          <p>(After clicking submit, <strong>do not refresh</strong> the page until you see a pop-up message.)</p>
+          <form onsubmit="return submitIssue();">
+            <div class="form-group" style="text-align:center">
+            <input class="code-textarea" type=textarea name=issue id=issue-text>
+            <input class="code-submit" type=submit value="Submit" class="btn btn-primary">
+            </div>
+          </form>
+        </div>
+      </div>
+
     </div>
 </div>
 <script>
+  
+  // function activate24Timer(){
+  //   var x = document.getElementById("timer");
+  //   if (x.style.display === "none") {
+  //     x.style.display = "block";
+  //   } else {
+  //     x.style.display = "none";
+  //   }
+  // }
 
   function submitEliminationCode(){
     code = document.getElementById("elimination-code").value
@@ -146,6 +177,18 @@
     return false;
   }
 
+  function submitIssue(){
+    issue = document.getElementById("issue-text").value
+    axios({
+      method:'post',
+      url:'/report_issue',
+      data:{
+        issue:issue,
+      }
+    }).catch(e=>console.log(e)).then(data => {alert(data["data"]); window.location.reload();})
+    return false;
+  }
+
   function showCode() {
     var text = document.getElementById("ShowButton");
     if (text.textContent === "SEE YOUR CODE") {
@@ -154,6 +197,36 @@
       text.textContent = "SEE YOUR CODE";
     }
   }
+
+// 24 hr timer
+
+  var timer_end = document.getElementById("timer").textContent;
+  var countDownDate = new Date(timer_end).getTime();
+
+  // Update the count down every 1 second
+  var x = setInterval(function() {
+
+  // Get today's date and time
+  var now = new Date().getTime();
+    
+  // Find the distance between now and the count down date
+  var distance = countDownDate - now;
+    
+  // Time calculations for days, hours, minutes and seconds
+  // var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+  var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+  var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+    
+  // Output the result in an element with id="demo"
+  document.getElementById("timer").innerHTML = hours + "h " + minutes + "m " + seconds + "s ";
+    
+  // If the count down is over, write some text 
+  if (distance < 0) {
+      clearInterval(x);
+      document.getElementById("timer").innerHTML = "EXPIRED";
+    }
+  }, 1000);
 </script>
 
 

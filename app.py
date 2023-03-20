@@ -14,12 +14,23 @@ import atexit
 from routes import *
 from utils import *
 from lists import *
+from flask_mail import Mail, Message
 
 from firebase_admin import credentials, firestore, initialize_app
+# from flask_mail import Mail, Message
 
 app = Flask(__name__)
 #register blueprints for routes
 app.register_blueprint(routes)
+#conig email
+app.config.from_object(os.environ['APP_SETTINGS'])
+app.config['MAIL_SERVER']='smtp.gmail.com'
+app.config['MAIL_PORT'] = 465
+app.config['MAIL_USERNAME'] = 'reshwap2019@gmail.com'
+app.config['MAIL_PASSWORD'] = 'cyrmevswjqcbqojn'
+app.config['MAIL_USE_TLS'] = False
+app.config['MAIL_USE_SSL'] = True
+mail = Mail(app)
 #initialize the excel module
 excel.init_excel(app)
 #setup the database
@@ -37,6 +48,7 @@ matches_ref = db.collection('matches')
 immunity_ref = db.collection('immunity')
 codes_ref = db.collection('codes')
 stats_ref = db.collection('stats')
+issues_ref = db.collection('issues')
 
 from firestore_models import *
 
@@ -84,6 +96,14 @@ def create_new_code(code, duration):
     # except Exception as e:
     #     return str(e)
 
+def create_new_issue(user_email, content):
+    print("new issue registered")
+
+    id = generate_random_id()
+    new_issue = issue_model(user_email, content, id)
+    issues_ref.document(id).set(new_issue)
+
+    return "Issue created"
 
 def create_new_match(hunter_email, target_email):
     id = generate_random_id()
@@ -102,7 +122,6 @@ def get_table(table):
     return [doc.to_dict() for doc in table.stream()]
 
 def get_basic_stats():
-
     stats = stats_ref.document("0").get().to_dict()
     n_users = stats["n_users"]
     n_matches = stats["n_matches"]
@@ -223,6 +242,10 @@ def is_logged_in():
 def is_paused():
     is_paused = pause_ref.document("0").get().to_dict()["is_paused"]
     return is_paused
+
+def is_timer_on():
+    is_on = pause_ref.document("1").get().to_dict()["is_on"]
+    return is_on
 
 def is_immunity_on():
     is_immunity_on = immunity_ref.document("0").get().to_dict()["is_immunity_on"]
@@ -377,16 +400,37 @@ def grant_immunity_endpoint():
 def index():
     is_eliminated = False
     if "user_info" in flask.session.keys():
+
+        end_day = "0"
+        end_hr = "0"
+        end_min = "0"
+        end_sec = "0"
+
+        if is_timer_on():
+            timer = pause_ref.document("1").get().to_dict()
+            end_day = timer["end_day"]
+            end_hr = timer["end_hr"]
+            end_min = timer["end_min"]
+            end_sec = timer["end_sec"]
+
         if(is_admin()):
             all_users = get_table(users_ref)
             all_matches = get_table(matches_ref)
+            all_issues = get_table(issues_ref)
+            
             return render_template('admin.html',
             user_info = flask.session["user_info"],
             logged_in = True,
             user_table = all_users,
             match_table = all_matches,
+            issue_table = all_issues,
             basic_stats = (get_basic_stats_admin()),
             is_paused = (is_paused()),
+            end_day = end_day,
+            end_hr = end_hr,
+            end_min = end_min,
+            end_sec = end_sec,
+            is_on = (is_timer_on()),
             is_immunity_on=(is_immunity_on()),
             codes_table = (get_table(codes_ref)),
             all_stats = (get_all_stats()),
@@ -408,6 +452,11 @@ def index():
                     basic_stats = (get_basic_stats()),
                     logged_in=True,
                     is_paused=(is_paused()),
+                    end_day = end_day,
+                    end_hr = end_hr,
+                    end_min = end_min,
+                    end_sec = end_sec,
+                    is_on=(is_timer_on()),
                     is_immunity_on=(is_immunity_on()),
                     all_stats = (get_all_stats()),
                     is_eliminated = ( not user_found["time_eliminated"] == "")
@@ -501,6 +550,25 @@ def change_bio():
         else:
             return "The text you entered is too long. It has to contain less than 55 characters."
 
+@app.route('/report_issue', methods=['POST'])
+def report_issue():
+    if "user_info" in flask.session.keys():
+        user_info = users_ref.where('email',"==", flask.session["user_info"]["email"]).get()[0].to_dict()
+        user_email = user_info["email"]
+        user_name = user_info["name"]
+        user_id = user_info["user_id"]
+        issue = request.json["issue"]
+
+        email_title = "Splash - A user submitted a new issue"
+        msg = Message(email_title, sender = 'reshwap2019@gmail.com', recipients = admins)
+        
+        msg.body = "User: {}\nemail: {}\nUser id: {}\n\nIssue: {}".format(user_name, user_email, user_id, issue)
+        # mail.send(msg)
+
+        create_new_issue(user_email, issue)
+        
+        return "Your issue was successfully submitted."
+
 @app.route('/ability/')
 def ability_index():
     return render_template("invalid_ability_code.html")
@@ -523,6 +591,26 @@ def pause_game():
             # print(all_user_emails)
             # send_message(all_user_emails, "Splash continues...")
             return "Game started"
+    else:
+        return "Access denied"
+
+@app.route('/active_timer', methods=['POST'])
+def active_timer():
+    if is_admin():
+        timer = pause_ref.document("1").get().to_dict()
+        timer["is_on"] = not timer["is_on"]
+        pause_ref.document("1").update(timer)
+
+        if timer["is_on"]:
+            now = datetime.now()
+            timer["end_day"] = now.day + 1
+            timer["end_hr"] =  now.hour
+            timer["end_min"] = now.minute
+            timer["end_sec"] = now.second
+            pause_ref.document("1").update(timer)
+            return "Timer on"
+        else:
+            return "Timer off"
     else:
         return "Access denied"
 
@@ -612,6 +700,7 @@ def immunity_ability():
 
 # @app.route('/displace_ability', methods = ['POST'])
 
+
 @app.route('/shuffle_game', methods=['POST'])
 def shuffle_game():
     if is_admin():
@@ -642,6 +731,23 @@ def shuffle_game():
     else:
         return "Access denied"
 
+
+@app.route('/resolveIssue/<issue_id>')
+def resolveIssue(issue_id):
+    if is_admin():
+        issue_found = issues_ref.where("id","==",issue_id).get()
+        if len(issue_found) > 0:
+            issue_found = issue_found[0].to_dict()
+            issue_found["is_resolved"] = True
+            issue_found["time_resolved"] = str(time_now())
+            issue_found["admin_email"] = flask.session["user_info"]["email"]
+            issues_ref.document(issue_found["id"]).update(issue_found)
+        else:
+            print("Issue not found")
+            return "Issue not found"
+        return redirect(url_for('index'))
+    else:
+        return "access denied"
 
 @app.route('/add_user', methods=['POST'])
 def add_user():
@@ -694,6 +800,7 @@ def upload():
 
             #create new pause variable
             pause_ref.document("0").set(pause_model())
+            pause_ref.document("1").set(timer_model())
             immunity_ref.document("0").set(immunity_model())
 
             #gets the excel file from front-end
