@@ -563,7 +563,7 @@ def report_issue():
         msg = Message(email_title, sender = 'reshwap2019@gmail.com', recipients = admins)
         
         msg.body = "User: {}\nemail: {}\nUser id: {}\n\nIssue: {}".format(user_name, user_email, user_id, issue)
-        # mail.send(msg)
+        mail.send(msg)
 
         create_new_issue(user_email, issue)
         
