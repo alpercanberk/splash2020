@@ -130,7 +130,7 @@ def timed_job():
     compute_ranks()
     print('This job is run every three minutes.')
 
-@sched.scheduled_job('inteval', minutes=1)
+@sched.scheduled_job('interval', minutes=1)
 def scheduled_job():
     wear_down_immunity()
     print("1 minute interval clock executed")
