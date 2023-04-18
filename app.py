@@ -364,7 +364,7 @@ def eliminate_user_route():
     print(flask.session["user_info"]["email"], "attempting to eliminate a user")
     code = str.upper(request.json["code"])
 
-    current_match = matches_ref.where("time_ended","==","")
+    current_match = matches_ref.where("time_ended","==","").where("hunter_email","==",flask.session["user_info"]["email"])
 
     if current_match is not None:
         current_target_email = current_match.get()[0].to_dict()["target_email"]
