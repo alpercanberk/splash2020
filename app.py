@@ -529,6 +529,8 @@ def ability(code):
                 return render_template("immunity_ability.html", logged_in = True, duration=code["duration"])
             if(code_found[0] == "Q"):
                 return render_template("qualify_ability.html", logged_in = True)
+            if(code_found[0] == "B"):
+                return render_template("blaster_ability.html", logged_in = True)
             if(code_found[0] == "P"):
                 return redirect("https://www.youtube.com/watch?v=dQw4w9WgXcQ&ab_channel=RickAstleyVEVO", code=302)
         else:
@@ -862,6 +864,13 @@ def generateCodes():
 
         create_new_code("Q3987", 10)
         create_new_code("Q4832", 10)
+
+        create_new_code("B2958", 10)
+        create_new_code("B9375", 10)
+        create_new_code("B8295", 10)
+        create_new_code("B2901", 10)
+        create_new_code("B5987", 10)
+        create_new_code("B9026", 10)
 
         return "Code generated!!!"
     else:
