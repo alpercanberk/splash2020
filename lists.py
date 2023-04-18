@@ -40,7 +40,7 @@ class Lists():
         {
             'name':"Sally Lee '23",
             'contact':'slee23@lawrenceville.org',
-            'role':'CEO, Programmer'
+            'role': 'Programmer'
         },
         {
             'name':"Bradley Barrett '23",

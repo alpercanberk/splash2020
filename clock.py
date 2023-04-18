@@ -108,7 +108,6 @@ def get_all_stats():
     stats_ref.document("0").update(stats)
 
 def compute_ranks():
-
     all_users = [user.to_dict() for user in users_ref.order_by("number_of_elims",direction=firestore.Query.DESCENDING).get()]
     for i in range(0, len(all_users)):
         all_users[i]["rank"] = i
