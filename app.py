@@ -2,6 +2,9 @@ from flask import Flask, redirect, render_template, request, jsonify, url_for, R
 import flask
 import flask_excel as excel
 
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+
 import datetime
 import json
 import os
@@ -51,6 +54,12 @@ stats_ref = db.collection('stats')
 issues_ref = db.collection('issues')
 
 from firestore_models import *
+
+limiter = Limiter(
+    get_remote_address,
+    app=app,
+    default_limits=["200 per day", "10 per hour"]
+)
 
 def expire_ability(code, used_by, used_on):
     ability = codes_ref.where("code","==",code).get()
@@ -851,38 +860,38 @@ def generateCodes():
         delete_collection(codes_ref, 50)
         
         create_new_code("I6427", 10)
-        create_new_code("I6136", 10)
-        create_new_code("I9308", 10)
-        create_new_code("I7059", 10)
-        create_new_code("I3953", 10)
-        create_new_code("I9507", 10)
-        create_new_code("I6634", 10)
-        create_new_code("I9285", 10)
-        create_new_code("I5062", 10)
-        create_new_code("I7617", 10)
-        create_new_code("I5487", 10)
-        create_new_code("I2283", 10)
-        create_new_code("I5693", 10)
+        # create_new_code("I6136", 10)
+        # create_new_code("I9308", 10)
+        # create_new_code("I7059", 10)
+        # create_new_code("I3953", 10)
+        # create_new_code("I9507", 10)
+        # create_new_code("I6634", 10)
+        # create_new_code("I9285", 10)
+        # create_new_code("I5062", 10)
+        # create_new_code("I7617", 10)
+        # create_new_code("I5487", 10)
+        # create_new_code("I2283", 10)
+        # create_new_code("I5693", 10)
 
         create_new_code("R4963", 10)
-        create_new_code("R2778", 10)
-        create_new_code("R3755", 10)
-        create_new_code("R8663", 10)
-        create_new_code("R3693", 10)
-        create_new_code("R5083", 10)
-        create_new_code("R5967", 10)
-        create_new_code("R9948", 10)
+        # create_new_code("R2778", 10)
+        # create_new_code("R3755", 10)
+        # create_new_code("R8663", 10)
+        # create_new_code("R3693", 10)
+        # create_new_code("R5083", 10)
+        # create_new_code("R5967", 10)
+        # create_new_code("R9948", 10)
 
         create_new_code("Q2137", 10)
-        create_new_code("Q0237", 10)
-        create_new_code("Q4733", 10)
+        # create_new_code("Q0237", 10)
+        # create_new_code("Q4733", 10)
 
-        create_new_code("B3764", 10)
-        create_new_code("B1167", 10)
-        create_new_code("B0421", 10)
-        create_new_code("B9156", 10)
-        create_new_code("B6592", 10)
-        create_new_code("B3177", 10)
+        # create_new_code("B3764", 10)
+        # create_new_code("B1167", 10)
+        # create_new_code("B0421", 10)
+        # create_new_code("B9156", 10)
+        # create_new_code("B6592", 10)
+        # create_new_code("B3177", 10)
 
         return "Code generated!!!"
     else:
