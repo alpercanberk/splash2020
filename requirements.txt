@@ -7,7 +7,7 @@ cffi==1.14.5
 chardet==3.0.4
 Click==7.0
 firebase-admin==4.5.3
-Flask==1.1.1
+Flask==2
 Flask-Mail==0.9.1
 Flask-Excel==0.0.7
 Flask-Migrate==1.8.0
