@@ -56,8 +56,8 @@ issues_ref = db.collection('issues')
 from firestore_models import *
 
 limiter = Limiter(
-    get_remote_address,
-    app=app,
+    app,
+    key_func = get_remote_address,
     default_limits=["200 per day", "10 per hour"]
 )
 
