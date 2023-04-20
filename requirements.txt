@@ -5,7 +5,7 @@ cachetools==4.0.0
 certifi==2019.11.28
 cffi==1.14.5
 chardet==3.0.4
-Click==7.0
+Click==8.0
 firebase-admin==4.5.3
 Flask==2
 Flask-Mail==0.9.1
@@ -29,11 +29,11 @@ grpcio==1.46.3
 gunicorn==20.0.4
 httplib2==0.17.0
 idna==2.9
-itsdangerous==1.1.0
-Jinja2==2.11.1
+itsdangerous==2.0
+Jinja2==3.0
 lml==0.0.9
 Mako==1.1.2
-MarkupSafe==1.1.1
+MarkupSafe==2.0
 msgpack==1.0.2
 oauthlib==3.1.0
 packaging==20.9
