@@ -371,11 +371,11 @@ def eliminate_user_admin_route():
     if(is_admin()):
         print("Eliminating a user...")
         data = request.json
-        current_match = matches_ref.where("time_ended","==","").where("hunter_email","==",data["email"])
-        game_id = current_match.get()[0].to_dict()["id"]
-        print(game_id)
-        return "good"
-        # return eliminate_user(data["email"], data["increment_elimination_count"])
+        # current_match = matches_ref.where("time_ended","==","").where("hunter_email","==",data["email"])
+        # game_id = current_match.get()[0].to_dict()["id"]
+        # print(game_id)
+        # return "good"
+        return eliminate_user(data["email"], data["increment_elimination_count"])
     else:
         return "Damn you're smart, come to programming club."
 
