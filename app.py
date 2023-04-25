@@ -55,11 +55,11 @@ issues_ref = db.collection('issues')
 
 from firestore_models import *
 
-limiter = Limiter(
-    app,
-    key_func = get_remote_address,
-    default_limits=["200 per day", "10 per hour"]
-)
+# limiter = Limiter(
+#     app,
+#     key_func = get_remote_address,
+#     default_limits=["200 per day", "10 per hour"]
+# )
 
 def expire_ability(code, used_by, used_on):
     ability = codes_ref.where("code","==",code).get()
@@ -129,6 +129,14 @@ def create_new_match(hunter_email, target_email):
 
 def get_table(table):
     return [doc.to_dict() for doc in table.stream()]
+
+def get_table_clean(table):
+    matches = []
+    for doc in table.stream():
+        match = doc.to_dict()
+        if match["reason"] != "Game shuffled":
+            matches.append(match)
+    return matches
 
 def get_basic_stats():
     stats = stats_ref.document("0").get().to_dict()
@@ -363,7 +371,11 @@ def eliminate_user_admin_route():
     if(is_admin()):
         print("Eliminating a user...")
         data = request.json
-        return eliminate_user(data["email"], data["increment_elimination_count"])
+        current_match = matches_ref.where("time_ended","==","").where("hunter_email","==",data["email"])
+        game_id = current_match.get()[0].to_dict()["id"]
+        print(game_id)
+        return "good"
+        # return eliminate_user(data["email"], data["increment_elimination_count"])
     else:
         return "Damn you're smart, come to programming club."
 
@@ -424,7 +436,7 @@ def index():
 
         if(is_admin()):
             all_users = get_table(users_ref)
-            all_matches = get_table(matches_ref)
+            all_matches = get_table_clean(matches_ref)
             all_issues = get_table(issues_ref)
             
             return render_template('admin.html',
@@ -859,39 +871,39 @@ def generateCodes():
         # return "survivor list returned!!!"
         delete_collection(codes_ref, 50)
         
-        create_new_code("I6427", 10)
-        # create_new_code("I6136", 10)
-        # create_new_code("I9308", 10)
-        # create_new_code("I7059", 10)
-        # create_new_code("I3953", 10)
-        # create_new_code("I9507", 10)
-        # create_new_code("I6634", 10)
-        # create_new_code("I9285", 10)
-        # create_new_code("I5062", 10)
-        # create_new_code("I7617", 10)
-        # create_new_code("I5487", 10)
-        # create_new_code("I2283", 10)
-        # create_new_code("I5693", 10)
+        create_new_code("I69905", 10)
+        create_new_code("I21510", 10)
+        create_new_code("I92246", 10)
+        create_new_code("I91409", 10)
+        create_new_code("I96458", 10)
+        create_new_code("I37949", 10)
+        create_new_code("I34179", 10)
+        create_new_code("I17012", 10)
+        create_new_code("I32595", 10)
+        create_new_code("I79278", 10)
+        create_new_code("I19158", 10)
+        create_new_code("I90099", 10)
+        create_new_code("I08806", 10)
 
-        create_new_code("R4963", 10)
-        # create_new_code("R2778", 10)
-        # create_new_code("R3755", 10)
-        # create_new_code("R8663", 10)
-        # create_new_code("R3693", 10)
-        # create_new_code("R5083", 10)
-        # create_new_code("R5967", 10)
-        # create_new_code("R9948", 10)
+        create_new_code("R11030", 10)
+        create_new_code("R65903", 10)
+        create_new_code("R63846", 10)
+        create_new_code("R07917", 10)
+        create_new_code("R23388", 10)
+        create_new_code("R90060", 10)
+        create_new_code("R27682", 10)
+        create_new_code("R87185", 10)
 
-        create_new_code("Q2137", 10)
-        # create_new_code("Q0237", 10)
-        # create_new_code("Q4733", 10)
+        create_new_code("Q23638", 10)
+        create_new_code("Q83696", 10)
+        create_new_code("Q17332", 10)
 
-        # create_new_code("B3764", 10)
-        # create_new_code("B1167", 10)
-        # create_new_code("B0421", 10)
-        # create_new_code("B9156", 10)
-        # create_new_code("B6592", 10)
-        # create_new_code("B3177", 10)
+        create_new_code("B38656", 10)
+        create_new_code("B23418", 10)
+        create_new_code("B54527", 10)
+        create_new_code("B32528", 10)
+        create_new_code("B30373", 10)
+        create_new_code("B44709", 10)
 
         return "Code generated!!!"
     else:
