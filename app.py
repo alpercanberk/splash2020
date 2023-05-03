@@ -982,7 +982,7 @@ def all_stats():
 
 @app.route('/statistics')
 def statistics():
-    return render_template("stats.html",logged_in=is_logged_in(), stats=get_all_stats())
+    return render_template("stats.html",logged_in=is_logged_in(), stats=get_all_stats(), basic_stats = (get_basic_stats_admin()))
 
 @app.route('/team')
 def team():
